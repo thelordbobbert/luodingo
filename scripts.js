@@ -1,5 +1,11 @@
 function startLearning() {
     const language = document.getElementById('languageInput').value.trim();
+    input.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          document.getElementById("startbutton").click();
+        }
+      });
     if (language === '') {
       return;
     }
