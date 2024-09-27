@@ -1,44 +1,48 @@
 function startLearning() {
-    const language = document.getElementById('languageInput').value.trim();
-    input.addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          document.getElementById("startbutton").click();
-        }
-      });
-    if (language === '') {
-      return;
-    }
+  const language = document.getElementById('languageInput').value.trim();
+  if (language === '') {
+    return;
+  }
 
-    const upperCaseLanguage = language.toUpperCase();
+  const upperCaseLanguage = language.toUpperCase();
 
-    document.getElementById('languageName1').innerText = upperCaseLanguage;
-    document.getElementById('languageName2').innerText = upperCaseLanguage;
-    document.getElementById('languageName3').innerText = upperCaseLanguage;
-    document.getElementById('languageName4').innerText = upperCaseLanguage;
-    document.getElementById('languageName5').innerText = upperCaseLanguage;
-    document.getElementById('languageName6').innerText = upperCaseLanguage;
-    document.getElementById('languageName7').innerText = upperCaseLanguage;
-    document.getElementById('languageName8').innerText = upperCaseLanguage;
+  document.getElementById('languageName1').innerText = upperCaseLanguage;
+  document.getElementById('languageName2').innerText = upperCaseLanguage;
+  document.getElementById('languageName3').innerText = upperCaseLanguage;
+  document.getElementById('languageName4').innerText = upperCaseLanguage;
+  document.getElementById('languageName5').innerText = upperCaseLanguage;
+  document.getElementById('languageName6').innerText = upperCaseLanguage;
+  document.getElementById('languageName7').innerText = upperCaseLanguage;
+  document.getElementById('languageName8').innerText = upperCaseLanguage;
 
-    document.getElementById('home').style.display = 'none';
-    document.getElementById('step1').style.display = 'flex';
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('step1').style.display = 'flex';
 }
 
+function handleKeyPress(event) {
+  if (event.key === 'Enter') {
+      startLearning();
+  }
+}
+
+window.onload = function() {
+  document.getElementById('languageInput').addEventListener('keydown', handleKeyPress);
+};
+
 function nextStep(stepId) {
-    const steps = ['step1', 'step2', 'step3', 'step4'];
-    steps.forEach(step => document.getElementById(step).style.display = 'none');
-    document.getElementById(stepId).style.display = 'flex';
+  const steps = ['step1', 'step2', 'step3', 'step4'];
+  steps.forEach(step => document.getElementById(step).style.display = 'none');
+  document.getElementById(stepId).style.display = 'flex';
 }
 
 function previousStep(stepId) {
-    const steps = ['step1', 'step2', 'step3', 'step4'];
-    steps.forEach(step => document.getElementById(step).style.display = 'none');
-    document.getElementById(stepId).style.display = 'flex';
+  const steps = ['step1', 'step2', 'step3', 'step4'];
+  steps.forEach(step => document.getElementById(step).style.display = 'none');
+  document.getElementById(stepId).style.display = 'flex';
 }
 
 function goHome() {
-    const steps = ['step1', 'step2', 'step3', 'step4'];
-    steps.forEach(step => document.getElementById(step).style.display = 'none');
-    document.getElementById('home').style.display = 'flex';
+  const steps = ['step1', 'step2', 'step3', 'step4'];
+  steps.forEach(step => document.getElementById(step).style.display = 'none');
+  document.getElementById('home').style.display = 'flex';
 }
