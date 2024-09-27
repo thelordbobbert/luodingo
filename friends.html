@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends</title>
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Friends</h1>
+            <p>Manage your friends, send requests, and view pending requests.</p>
+
+            <div class="friend-actions">
+                <input type="text" id="search-friend" placeholder="Enter friend's email">
+                <button onclick="addFriend()">Add Friend</button>
+            </div>
+
+            <div id="friend-list">
+                <h2>Your Friends</h2>
+                <ul id="friends"></ul>
+            </div>
+
+            <div id="pending-requests">
+                <h2>Pending Friend Requests</h2>
+                <ul id="requests"></ul>
+            </div>
+
+            <button onclick="goHome()">Back to Home</button>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
