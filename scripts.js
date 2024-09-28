@@ -50,3 +50,7 @@ function goHome() {
 function enterSigmaSession() {
   window.location.href = 'sigmasession';
 }
+
+function goBackHome() {
+  window.location.href = '/';
+}
