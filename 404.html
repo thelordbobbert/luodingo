@@ -7,13 +7,19 @@
     <link href="styles.css" rel="stylesheet">
 </head>
 <body>
+
+    <div class="toggle-container">
+        <button id="themeToggle" onclick="toggleTheme()">
+            <span id="themeIcon">🌙</span>
+        </button>
+    </div>
+
     <div class="container">
         <div class="card">
-            <h1>404</h1>
+            <h1>Error 404</h1>
             <h2>Oops! Page Not Found</h2>
             <p>Sorry, the page you're looking for doesn't exist.</p>
-            <img src="images/404.png" alt="404 Image" class="illustration">
-            <button onclick="goBackHome()">Go Back Home</button>
+            <button onclick="goBackHome()">Go back</button>
         </div>
     </div>
     <script src="scripts.js"></script>

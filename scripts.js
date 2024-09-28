@@ -1,7 +1,26 @@
+window.onload = function() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+      document.body.classList.add(savedTheme);
+      updateIcon(savedTheme);
+  } else {
+      document.body.classList.add('light-mode');
+      updateIcon('light-mode');
+  }
+
+  document.getElementById('languageInput').addEventListener('keydown', handleKeyPress);
+};
+
+function handleKeyPress(event) {
+  if (event.key === 'Enter') {
+      startLearning();
+  }
+}
+
 function startLearning() {
   const language = document.getElementById('languageInput').value.trim();
   if (language === '') {
-    return;
+      return;
   }
 
   const upperCaseLanguage = language.toUpperCase();
@@ -18,16 +37,6 @@ function startLearning() {
   document.getElementById('home').style.display = 'none';
   document.getElementById('step1').style.display = 'flex';
 }
-
-function handleKeyPress(event) {
-  if (event.key === 'Enter') {
-      startLearning();
-  }
-}
-
-window.onload = function() {
-  document.getElementById('languageInput').addEventListener('keydown', handleKeyPress);
-};
 
 function nextStep(stepId) {
   const steps = ['step1', 'step2', 'step3', 'step4'];
@@ -53,4 +62,27 @@ function enterSigmaSession() {
 
 function goBackHome() {
   window.location.href = '/';
+}
+
+function toggleTheme() {
+  if (document.body.classList.contains('dark-mode')) {
+      document.body.classList.remove('dark-mode');
+      document.body.classList.add('light-mode');
+      localStorage.setItem('theme', 'light-mode');
+      updateIcon('light-mode');
+  } else {
+      document.body.classList.remove('light-mode');
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('theme', 'dark-mode');
+      updateIcon('dark-mode');
+  }
+}
+
+function updateIcon(theme) {
+  const icon = document.getElementById('themeIcon');
+  if (theme === 'dark-mode') {
+      icon.textContent = '🌞';
+  } else {
+      icon.textContent = '🌙';
+  }
 }

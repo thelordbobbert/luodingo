@@ -8,6 +8,13 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+    <div class="toggle-container">
+        <button id="themeToggle" onclick="toggleTheme()">
+            <span id="themeIcon">🌙</span>
+        </button>
+    </div>
+
     <div class="container" id="home">
         <div class="card">
             <h1>Luodingo</h1>
@@ -50,7 +57,7 @@
             <h2>Forgetting <span id="languageName6">[INSERT LANGUAGE]</span></h2>
             <h3>Step 3 - Healthy Lifestyle!</h3>
             <p>Having a healthy diet, getting enough sleep, and doing enough physical activity such as yoga may prevent you from remembering unpleasant things such as <span id="languageName7">X</span>.</p>
-            <img src="images/step3.png" alt="Whack Head Image" class="illustration">
+            <img src="images/step3.png" alt="Healthy Lifestyle Image" class="illustration">
             <div class="navigation">
                 <button onclick="previousStep('step2')"><</button>
                 <button onclick="goHome()">Home</button>
