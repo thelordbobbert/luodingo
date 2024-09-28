@@ -8,7 +8,7 @@ body {
     align-items: center;
     justify-content: center;
     height: 100vh;
-    transition: background 0.5s ease;
+    transition: background 0.5s ease, color 0.5s ease;
 }
 
 .container {
@@ -34,6 +34,7 @@ body {
     align-items: center;
     justify-content: space-between;
     position: relative;
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .toggle-container {
@@ -80,10 +81,6 @@ body.dark-mode #themeToggle {
     color: #fff;
 }
 
-body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode p {
-    color: #f0f0f0;
-}
-
 h1 {
     color: #185a9d;
     font-size: 2.2rem;
@@ -114,7 +111,7 @@ p {
     text-align: center;
 }
 
-body.dark-mode p {
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode p {
     color: #f0f0f0;
 }
 
@@ -137,6 +134,16 @@ input[type="text"]:focus {
     outline: none;
 }
 
+body.dark-mode input[type="text"] {
+    background-color: #444;
+    color: #fff;
+    border-color: #666;
+}
+
+body.dark-mode input[type="text"]:focus {
+    border-color: #888;
+}
+
 button {
     padding: 12px 30px;
     border: none;
@@ -154,6 +161,25 @@ button:hover {
     background-color: #185a9d;
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+body.dark-mode button {
+    background-color: #444;
+    color: #fff;
+}
+
+body.dark-mode button:hover {
+    background-color: #666;
+}
+
+.navigation {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
 }
 
 img.profile-image {
@@ -176,25 +202,6 @@ img.profile-image {
 
 .illustration:hover {
     transform: scale(1.05);
-}
-
-body.dark-mode input[type="text"] {
-    background-color: #444;
-    color: #fff;
-    border-color: #666;
-}
-
-body.dark-mode input[type="text"]:focus {
-    border-color: #888;
-}
-
-body.dark-mode button {
-    background-color: #444;
-    color: #fff;
-}
-
-body.dark-mode button:hover {
-    background-color: #666;
 }
 
 @media (max-width: 768px) {

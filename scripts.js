@@ -30,6 +30,26 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme();
 });
 
+function nextStep(stepId) {
+  const steps = ['step1', 'step2', 'step3', 'step4'];
+  steps.forEach(step => document.getElementById(step).style.display = 'none');
+  document.getElementById(stepId).style.display = 'flex';
+  applyTheme();
+}
+
+function previousStep(stepId) {
+  const steps = ['step1', 'step2', 'step3', 'step4'];
+  steps.forEach(step => document.getElementById(step).style.display = 'none');
+  document.getElementById(stepId).style.display = 'flex';
+  applyTheme();
+}
+
+function goHome() {
+  const steps = ['step1', 'step2', 'step3', 'step4'];
+  steps.forEach(step => document.getElementById(step).style.display = 'none');
+  document.getElementById('home').style.display = 'flex';
+  applyTheme();
+}
 
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('languageInput').addEventListener('keydown', handleKeyPress);
@@ -60,24 +80,6 @@ function startLearning() {
 
   document.getElementById('home').style.display = 'none';
   document.getElementById('step1').style.display = 'flex';
-}
-
-function nextStep(stepId) {
-  const steps = ['step1', 'step2', 'step3', 'step4'];
-  steps.forEach(step => document.getElementById(step).style.display = 'none');
-  document.getElementById(stepId).style.display = 'flex';
-}
-
-function previousStep(stepId) {
-  const steps = ['step1', 'step2', 'step3', 'step4'];
-  steps.forEach(step => document.getElementById(step).style.display = 'none');
-  document.getElementById(stepId).style.display = 'flex';
-}
-
-function goHome() {
-  const steps = ['step1', 'step2', 'step3', 'step4'];
-  steps.forEach(step => document.getElementById(step).style.display = 'none');
-  document.getElementById('home').style.display = 'flex';
 }
 
 function enterSigmaSession() {
