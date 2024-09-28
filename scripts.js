@@ -1,15 +1,6 @@
-window.onload = function() {
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme) {
-      document.body.classList.add(savedTheme);
-      updateIcon(savedTheme);
-  } else {
-      document.body.classList.add('light-mode');
-      updateIcon('light-mode');
-  }
-
+document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('languageInput').addEventListener('keydown', handleKeyPress);
-};
+});
 
 function handleKeyPress(event) {
   if (event.key === 'Enter') {
@@ -68,21 +59,15 @@ function toggleTheme() {
   if (document.body.classList.contains('dark-mode')) {
       document.body.classList.remove('dark-mode');
       document.body.classList.add('light-mode');
-      localStorage.setItem('theme', 'light-mode');
       updateIcon('light-mode');
   } else {
       document.body.classList.remove('light-mode');
       document.body.classList.add('dark-mode');
-      localStorage.setItem('theme', 'dark-mode');
       updateIcon('dark-mode');
   }
 }
 
 function updateIcon(theme) {
   const icon = document.getElementById('themeIcon');
-  if (theme === 'dark-mode') {
-      icon.textContent = '🌞';
-  } else {
-      icon.textContent = '🌙';
-  }
+  icon.textContent = (theme === 'dark-mode') ? '🌞' : '🌙';
 }
