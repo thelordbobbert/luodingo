@@ -228,3 +228,13 @@ img.profile-image {
         transform: translateY(0);
     }
 }
+
+.copyright {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 20px;
+}
+
+body.dark-mode .copyright {
+    color: #aaa;
+}
