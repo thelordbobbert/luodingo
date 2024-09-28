@@ -1,3 +1,36 @@
+function applyTheme() {
+  const theme = localStorage.getItem('theme');
+  if (theme === 'dark') {
+      document.body.classList.add('dark-mode');
+      updateIcon('dark-mode');
+  } else {
+      document.body.classList.remove('dark-mode');
+      updateIcon('light-mode');
+  }
+}
+
+function toggleTheme() {
+  if (document.body.classList.contains('dark-mode')) {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('theme', 'light');
+      updateIcon('light-mode');
+  } else {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('theme', 'dark');
+      updateIcon('dark-mode');
+  }
+}
+
+function updateIcon(theme) {
+  const icon = document.getElementById('themeIcon');
+  icon.textContent = theme === 'dark-mode' ? '🌞' : '🌙';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  applyTheme();
+});
+
+
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('languageInput').addEventListener('keydown', handleKeyPress);
 });
@@ -53,21 +86,4 @@ function enterSigmaSession() {
 
 function goBackHome() {
   window.location.href = '/';
-}
-
-function toggleTheme() {
-  if (document.body.classList.contains('dark-mode')) {
-      document.body.classList.remove('dark-mode');
-      document.body.classList.add('light-mode');
-      updateIcon('light-mode');
-  } else {
-      document.body.classList.remove('light-mode');
-      document.body.classList.add('dark-mode');
-      updateIcon('dark-mode');
-  }
-}
-
-function updateIcon(theme) {
-  const icon = document.getElementById('themeIcon');
-  icon.textContent = (theme === 'dark-mode') ? '🌞' : '🌙';
 }

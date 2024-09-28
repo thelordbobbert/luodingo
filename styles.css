@@ -33,13 +33,13 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    transition: background-color 0.5s ease, color 0.5s ease;
+    position: relative;
 }
 
 .toggle-container {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 15px;
+    right: 15px;
 }
 
 #themeToggle {
@@ -71,8 +71,8 @@ body.dark-mode {
 }
 
 body.dark-mode .card {
-    background-color: #333;
-    color: #e0e0e0;
+    background-color: #222;
+    color: #f0f0f0;
 }
 
 body.dark-mode #themeToggle {
@@ -81,7 +81,7 @@ body.dark-mode #themeToggle {
 }
 
 body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode p {
-    color: #e0e0e0;
+    color: #f0f0f0;
 }
 
 h1 {
@@ -112,6 +112,10 @@ p {
     line-height: 1.6;
     margin-bottom: 20px;
     text-align: center;
+}
+
+body.dark-mode p {
+    color: #f0f0f0;
 }
 
 input[type="text"] {
@@ -150,16 +154,6 @@ button:hover {
     background-color: #185a9d;
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-.navigation {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
-
-button:active {
-    transform: translateY(1px);
 }
 
 img.profile-image {
