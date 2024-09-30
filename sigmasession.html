@@ -55,19 +55,10 @@
         const urlInput = document.getElementById('url-input');
         const goBtn = document.getElementById('go-btn');
 
-        function obfuscateURL(url) {
-            return btoa(url);
-        }
-
-        function deobfuscateURL(encodedUrl) {
-            return atob(encodedUrl);
-        }
-
         goBtn.addEventListener('click', () => {
             const url = urlInput.value.startsWith('http') ? urlInput.value : `http://${urlInput.value}`;
-            const obfuscatedUrl = obfuscateURL(url);
-            const finalUrl = deobfuscateURL(obfuscatedUrl);
-            webview.src = finalUrl;
+            const proxyUrl = `https://kproxy.com/browse.php?u=${encodeURIComponent(url)}`;
+            webview.src = proxyUrl;
         });
     </script>
 </body>
