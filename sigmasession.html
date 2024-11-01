@@ -62,22 +62,19 @@
         }
 
         async function loadPage(url) {
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
             try {
-                const response = await fetch(url, { mode: 'cors' });
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('text/html')) {
-                    const html = await response.text();
-                    const blob = new Blob([html], { type: 'text/html' });
-                    const blobUrl = URL.createObjectURL(blob);
-                    webview.src = blobUrl;
-                } else {
-                    webview.srcdoc = '<p>The requested content is not HTML.</p>';
-                }
+                const response = await fetch(proxyUrl + url);
+                const html = await response.text();
+                const blob = new Blob([html], { type: 'text/html' });
+                const blobUrl = URL.createObjectURL(blob);
+                webview.src = blobUrl;
             } catch (error) {
                 console.error('Error fetching the page:', error);
                 webview.srcdoc = `<p>Unable to load the page. Error: ${error.message}</p>`;
             }
         }
+
 
         goBtn.addEventListener('click', () => {
             const url = formatURL(urlInput.value);
