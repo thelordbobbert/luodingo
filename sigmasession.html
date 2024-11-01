@@ -46,7 +46,7 @@
     </div>
 
     <div id="sigma-container">
-        <iframe id="webview" src="https://www.google.com"></iframe>
+        <iframe id="webview" src="about:blank" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
 
     <script>
@@ -56,14 +56,32 @@
 
         function formatURL(url) {
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                return 'http://' + url;
+                return 'https://' + url;
             }
             return url;
         }
 
+        async function loadPage(url) {
+            try {
+                const response = await fetch(url, { mode: 'cors' });
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('text/html')) {
+                    const html = await response.text();
+                    const blob = new Blob([html], { type: 'text/html' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    webview.src = blobUrl;
+                } else {
+                    webview.srcdoc = '<p>The requested content is not HTML.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching the page:', error);
+                webview.srcdoc = `<p>Unable to load the page. Error: ${error.message}</p>`;
+            }
+        }
+
         goBtn.addEventListener('click', () => {
             const url = formatURL(urlInput.value);
-            webview.src = url;
+            loadPage(url);
         });
 
         urlInput.addEventListener('keypress', (e) => {
