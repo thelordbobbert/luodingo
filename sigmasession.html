@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sigma Session</title>
     <style>
         body {
@@ -47,7 +46,7 @@
     </div>
 
     <div id="sigma-container">
-        <iframe id="webview" src="https://google.com"></iframe>
+        <iframe id="webview" src="https://www.google.com"></iframe>
     </div>
 
     <script>
@@ -55,10 +54,22 @@
         const urlInput = document.getElementById('url-input');
         const goBtn = document.getElementById('go-btn');
 
+        function formatURL(url) {
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                return 'http://' + url;
+            }
+            return url;
+        }
+
         goBtn.addEventListener('click', () => {
-            const url = urlInput.value.startsWith('http') ? urlInput.value : `http://${urlInput.value}`;
-            const proxyUrl = `https://kproxy.com/browse.php?u=${encodeURIComponent(url)}`;
-            webview.src = proxyUrl;
+            const url = formatURL(urlInput.value);
+            webview.src = url;
+        });
+
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                goBtn.click();
+            }
         });
     </script>
 </body>
