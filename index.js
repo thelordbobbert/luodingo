@@ -1,18 +1,19 @@
+
 money = 0;
 moneyup = 1;
 msec = 0;
 upcost = 15;
-slavecost = 25;
-jewcost = 250;
+catcost = 25;
+workercost = 250;
 upown = 0;
-slaveown = 0;
-jewown = 0;
-slaveadd = 1;
-jewadd = 15;
+catown = 0;
+workerown = 0;
+catadd = 1;
+workadd = 15;
 cboost = 1;
 wboost = 1;
-slavemax = 0;
-jewmax = 0;
+catmax = 0;
+workmax = 0;
 
 //save before exiting
 function closingCode() {
@@ -28,14 +29,14 @@ function addcomma(x) {
 //updates all values
 function reloadall() {
   document.getElementById("click").innerHTML =
-    "LB/click: " + addcomma(moneyup) + " | LB/sec: " + addcomma(msec);
-  document.getElementById("total").innerHTML = "LB: " + addcomma(money);
+    "Money/click: " + addcomma(moneyup) + " | Money/sec: " + addcomma(msec);
+  document.getElementById("total").innerHTML = "Money: " + addcomma(money);
   document.getElementById("cat").innerHTML =
-    slaveown + "-clicker cat: " + addcomma(slavecost) + " | +" + addcomma(slaveadd) + "/sec";
+    catown + "-Black Slave: " + addcomma(catcost) + " | +" + addcomma(catadd) + "/sec";
   document.getElementById("worker").innerHTML =
-    jewown + "-worker: " + addcomma(jewcost) + " | +" + addcomma(jewadd) + "/sec";
+    workerown + "-Jewish Banker: " + addcomma(workercost) + " | +" + addcomma(workadd) + "/sec";
   document.getElementById("upgrade").innerHTML =
-    addcomma(upown) + "-main upgrade: " + addcomma(upcost);
+    addcomma(upown) + "-Manual Labor: " + addcomma(upcost);
 }
 //overwrites save file
 function save() {
@@ -43,19 +44,19 @@ function save() {
   localStorage.setItem("moneyup", moneyup);
   localStorage.setItem("msec", msec);
   localStorage.setItem("upcost", upcost);
-  localStorage.setItem("slavecost", slavecost);
-  localStorage.setItem("slaveadd", slaveadd);
-  localStorage.setItem("jewcost", jewcost);
-  localStorage.setItem("jewadd", jewadd);
-  localStorage.setItem("slaveown", slaveown);
-  localStorage.setItem("jewown", jewown);
+  localStorage.setItem("catcost", catcost);
+  localStorage.setItem("catadd", catadd);
+  localStorage.setItem("workercost", workercost);
+  localStorage.setItem("workadd", workadd);
+  localStorage.setItem("catown", catown);
+  localStorage.setItem("workerown", workerown);
   localStorage.setItem("upown", upown);
-  localStorage.setItem("slaveadd", slaveadd);
-  localStorage.setItem("jewadd", jewadd);
+  localStorage.setItem("catadd", catadd);
+  localStorage.setItem("workadd", workadd);
   localStorage.setItem("cboost", cboost);
   localStorage.setItem("wboost", wboost);
-  localStorage.setItem("slavemax", slavemax);
-  localStorage.setItem("jewmax", jewmax);
+  localStorage.setItem("catmax", catmax);
+  localStorage.setItem("workmax", workmax);
 }
 //loads save file
 function load() {
@@ -63,19 +64,19 @@ function load() {
   moneyup = parseInt(localStorage.getItem("moneyup"));
   msec = parseInt(localStorage.getItem("msec"));
   upcost = parseInt(localStorage.getItem("upcost"));
-  slavecost = parseInt(localStorage.getItem("slavecost"));
-  upown = parseInt(localStorage.getItem("slaveadd"));
-  jewcost = parseInt(localStorage.getItem("jewcost"));
-  upown = parseInt(localStorage.getItem("jewadd"));
-  slaveown = parseInt(localStorage.getItem("slaveown"));
-  jewown = parseInt(localStorage.getItem("jewown"));
+  catcost = parseInt(localStorage.getItem("catcost"));
+  upown = parseInt(localStorage.getItem("catadd"));
+  workercost = parseInt(localStorage.getItem("workercost"));
+  upown = parseInt(localStorage.getItem("workadd"));
+  catown = parseInt(localStorage.getItem("catown"));
+  workerown = parseInt(localStorage.getItem("workerown"));
   upown = parseInt(localStorage.getItem("upown"));
-  slaveadd = parseInt(localStorage.getItem("slaveadd"));
-  jewadd = parseInt(localStorage.getItem("jewadd"));
+  catadd = parseInt(localStorage.getItem("catadd"));
+  workadd = parseInt(localStorage.getItem("workadd"));
   cboost = parseInt(localStorage.getItem("cboost"));
   wboost = parseInt(localStorage.getItem("wboost"));
-  slavemax = parseInt(localStorage.getItem("slavemax"));
-  jewmax = parseInt(localStorage.getItem("jewmax"));
+  catmax = parseInt(localStorage.getItem("catmax"));
+  workmax = parseInt(localStorage.getItem("workmax"));
 
   reloadall();
 }
@@ -86,117 +87,117 @@ function reset() {
     moneyup = 1;
     msec = 0;
     upcost = 15;
-    slavecost = 25;
-    jewcost = 250;
-    slaveown = 0;
-    jewown = 0;
+    catcost = 25;
+    workercost = 250;
+    catown = 0;
+    workerown = 0;
     upown = 0;
-    slaveadd = 1;
-    jewadd = 15;
+    catadd = 1;
+    workadd = 15;
     reloadall();
   }
 }
 //timer
 function myTimer() {
     money += msec;
-  document.getElementById("total").innerHTML = "Money: " + addcomma(money);
+  document.getElementById("total").innerHTML = "LB: " + addcomma(money);
 }
 setInterval(myTimer, 1000);
 
 //what happens when button is clicked
 function clicked() {
   money += moneyup;
-  document.getElementById("total").innerHTML = "Money: " + addcomma(money);
+  document.getElementById("total").innerHTML = "LB: " + addcomma(money);
 }
 //upgrade function
 function upgrade(name) {
-  if (name == "Black Slave") {
-    if (money >= slavecost && slaveown < 50) {
+  if (name == "clicker cat") {
+    if (money >= catcost && catown < 50) {
       
-      if (slaveown <= 13) {
-        msec += slaveadd;
-        slaveadd++;
+      if (catown <= 13) {
+        msec += catadd;
+        catadd++;
         cboost = 1;
-      } else if (slaveown == 14) {
-        msec += slaveadd;
-        slaveadd++;
+      } else if (catown == 14) {
+        msec += catadd;
+        catadd++;
         cboost = 200;
-      } else if (slaveown <= 23) {
-        msec += 200 * slaveadd;
-        slaveadd++;
+      } else if (catown <= 23) {
+        msec += 200 * catadd;
+        catadd++;
         cboost = 200;
-      } else if (slaveown == 24) {
-        msec += 200 * slaveadd;
-        slaveadd++;
+      } else if (catown == 24) {
+        msec += 200 * catadd;
+        catadd++;
         cboost = 5000;
-      } else if (slaveown <= 48) {
-        msec += 5000 * slaveadd;
-        slaveadd++;
+      } else if (catown <= 48) {
+        msec += 5000 * catadd;
+        catadd++;
         cboost = 5000;
-      } else if (slaveown == 49) {
-        msec += 5000 * slaveadd;
-        slaveadd++;
+      } else if (catown == 49) {
+        msec += 5000 * catadd;
+        catadd++;
         cboost = 15000;
       } else {
-        msec += 15000 * slaveadd;
-        slaveadd++;
+        msec += 15000 * catadd;
+        catadd++;
         cboost = 15000;
       }
-      slaveown += 1;
-      money -= slavecost;
-      slavecost = slavecost * 2;
-      document.getElementById("slave").innerHTML =
-        slaveown + "-Black Slave: " + addcomma(slavecost) + " | +" + addcomma(slaveadd * cboost) + "/sec";
-    } else if (slaveown == 50) {
-      document.getElementById("slave").innerHTML =
-        slaveown + "-Black Slave: MAX | +15% click/sec";
+      catown += 1;
+      money -= catcost;
+      catcost = catcost * 2;
+      document.getElementById("cat").innerHTML =
+        catown + "-Black Slave: " + addcomma(catcost) + " | +" + addcomma(catadd * cboost) + "/sec";
+    } else if (catown == 50) {
+      document.getElementById("cat").innerHTML =
+        catown + "-Black Slave: MAX | +15% click/sec";
     }
   }
 
-  if (name == "Jewish Banker") {
-    if (money >= jewcost && jewown < 50) {
+  if (name == "worker") {
+    if (money >= workercost && workerown < 50) {
       
-      if (jewown <= 13) {
-        msec += jewadd;
-        jewadd++;
+      if (workerown <= 13) {
+        msec += workadd;
+        workadd++;
         wboost = 1;
-      } else if (jewown == 14) {
-        msec += jewadd;
-        jewadd++;
+      } else if (workerown == 14) {
+        msec += workadd;
+        workadd++;
         wboost = 200;
-      } else if (jewown <= 23) {
-        msec += 200 * jewadd;
-        jewadd++;
+      } else if (workerown <= 23) {
+        msec += 200 * workadd;
+        workadd++;
         wboost = 200;
-      } else if (jewown == 24) {
-        msec += 200 * jewadd;
-        jewadd++;
+      } else if (workerown == 24) {
+        msec += 200 * workadd;
+        workadd++;
         wboost = 5000;
-      } else if (jewown <= 48) {
-        msec += 5000 * jewadd;
-        jewadd++;
+      } else if (workerown <= 48) {
+        msec += 5000 * workadd;
+        workadd++;
         wboost = 5000;
-      } else if (jewown == 49) {
-        msec += 5000 * jewadd;
-        jewadd++;
+      } else if (workerown == 49) {
+        msec += 5000 * workadd;
+        workadd++;
         wboost = 15000;
       } else {
-        msec += 15000 * jewadd;
-        jewadd++;
+        msec += 15000 * workadd;
+        workadd++;
         wboost = 15000;
       }
-      jewown += 1;
-      money -= jewcost;
-      jewcost = jewcost * 3;
-      document.getElementById("jew").innerHTML = 
-        jewown + "-Jewish Banker: " + addcomma(jewcost) + " | +" + addcomma(jewadd * wboost) + "/sec";
-    } else if (jewown == 50) {
-      document.getElementById("jew").innerHTML =
-        jewown + "-Jewish Banker: MAX | +35% click/sec";
+      workerown += 1;
+      money -= workercost;
+      workercost = workercost * 3;
+      document.getElementById("worker").innerHTML = 
+        workerown + "-Jewish Banker: " + addcomma(workercost) + " | +" + addcomma(workadd * wboost) + "/sec";
+    } else if (workerown == 50) {
+      document.getElementById("worker").innerHTML =
+        workerown + "-Jewish Banker: MAX | +35% click/sec";
     }
   }
 
-  if (name == "Manual Labor") {
+  if (name == "upgrade") {
     if (money >= upcost) {
       moneyup += upcost / 15;
       money -= upcost;
@@ -204,15 +205,15 @@ function upgrade(name) {
       upcost = upcost * 5;
       document.getElementById("upgrade").innerHTML =
         addcomma(upown) + "-Manual Labor: " + addcomma(upcost);
-      if (slaveown == 50) {
-        msec -= slavemax;
-        slavemax = Math.floor(moneyup * 0.15);
-        msec += slavemax;
+      if (catown == 50) {
+        msec -= catmax;
+        catmax = Math.floor(moneyup * 0.15);
+        msec += catmax;
       }
-      if (jewown == 50) {
-        msec -= jewmax;
-        jewmax = Math.floor(moneyup * 0.35);
-        msec += jewmax;
+      if (workerown == 50) {
+        msec -= workmax;
+        workmax = Math.floor(moneyup * 0.35);
+        msec += workmax;
       }
     }
   }
