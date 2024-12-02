@@ -1,0 +1,30 @@
+<html>
+<title>Sigma Session</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<body onbeforeunload="return closingCode()">
+  <link rel="stylesheet" href="index.css">
+    <script src="index.js"></script>
+  <div class='topbar'>
+    <a href='https://luodingo.org'>Racism Clicker</a>
+  </div>
+    <center class='center'>
+      <h1 id='total'>Money: 0</h1>
+      <h5 id="click" style="font-family:trebuchet MS;">Money/click: 1 | Money/sec: 0</h5>
+      <img class="round" src="images/home.png" width="150" onclick='clicked()'></img>
+      <br><br>
+      <button id='upgrade' class="round" onclick='upgrade("upgrade")' style="font-family:courier;">0-Manual Labor: 15</button>
+      <br><br>
+      <button id='slave' class="round" onclick='upgrade("slave")' style="font-family:courier;">0-Black Slave: 25 | +1/sec</button>
+      <br><br>
+      <button id='jew' class="round" onclick='upgrade("jew")' style="font-family:courier;">0-Jewish Banker: 250 | +15/sec</button><br><br>
+      <button class="settings" onclick="save()">Save</button>
+      <button class="settings" onclick="load()">Load</button>
+      <button class="settings" onclick="reset()">Reset</button><br><br>
+    </center>
+  </link>
+</body>
+</meta>
+
+
+</html>
