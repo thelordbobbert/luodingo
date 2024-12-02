@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ultimate Clicker Game</title>
+    <title>Ultimate Clicker Adventure</title>
     <style>
         body {
             margin: 0;
@@ -11,14 +11,14 @@
             text-align: center;
         }
         .container {
-            padding: 20px;
             max-width: 900px;
             margin: auto;
-        }
-        .stats, .upgrades, .research, .quests, .goal {
-            background: #2e2e3f;
-            margin: 20px 0;
             padding: 20px;
+        }
+        .stats, .upgrades, .goal, .prestige {
+            background: #2e2e3f;
+            padding: 20px;
+            margin: 20px 0;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
@@ -26,7 +26,7 @@
             background: #5567a4;
             color: #fff;
             border: none;
-            padding: 10px 15px;
+            padding: 10px 20px;
             margin: 10px;
             cursor: pointer;
             border-radius: 5px;
@@ -40,26 +40,12 @@
             background: #444;
             cursor: not-allowed;
         }
-        .progress-bar {
-            background: #444;
-            height: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-        .progress-bar-inner {
-            height: 100%;
-            background: #6d81d5;
-            width: 0;
-            transition: width 0.3s;
-        }
         .tooltip {
             position: relative;
             display: inline-block;
         }
         .tooltip span {
             visibility: hidden;
-            width: 200px;
             background: #333;
             color: #fff;
             text-align: center;
@@ -72,6 +58,7 @@
             margin-left: -100px;
             opacity: 0;
             transition: opacity 0.3s;
+            width: 250px;
         }
         .tooltip:hover span {
             visibility: visible;
@@ -81,31 +68,26 @@
 </head>
 <body>
     <div class="container">
-        <div class="stats" id="stats">
+        <div class="stats">
             <h1>Coins: <span id="coins">0</span></h1>
             <h3>Income per Click: <span id="income-per-click">1</span></h3>
             <h3>Income per Second: <span id="income-per-second">0</span></h3>
         </div>
         <button onclick="clickHandler()">Click Me!</button>
-        <div class="progress-bar">
-            <div class="progress-bar-inner" id="progress-bar-inner"></div>
-        </div>
-        <div class="upgrades" id="upgrades">
+        <div class="upgrades">
             <h2>Upgrades</h2>
             <div id="upgrades-list"></div>
         </div>
-        <div class="research" id="research">
-            <h2>Research</h2>
-            <div id="research-list"></div>
+        <div class="prestige">
+            <h2>Prestige</h2>
+            <p>Reset progress to earn a multiplier to all income.</p>
+            <button onclick="prestige()" id="prestige-btn" disabled>Prestige (Requires 1M Coins)</button>
         </div>
-        <div class="quests" id="quests">
-            <h2>Quests</h2>
-            <div id="quests-list"></div>
-        </div>
-        <div class="goal" id="goal">
-            <h2>Ultimate Goal</h2>
-            <p>Build the <strong>Crystal Tower</strong> to complete the game.</p>
+        <div class="goal">
+            <h2>End Goal</h2>
+            <p>Build the <strong>Golden Monument</strong> to complete the game.</p>
             <p>Progress: <span id="goal-progress">0%</span></p>
+            <button onclick="completeGoal()" id="goal-btn" disabled>Build Golden Monument (1 trillion coins required)</button>
         </div>
         <div>
             <button onclick="saveGame()">Save Game</button>
@@ -118,48 +100,118 @@
         let coins = 0;
         let incomePerClick = 1;
         let incomePerSecond = 0;
-        let totalClicks = 0;
-        let goalProgress = 0;
-        let saveData = {};
+        let totalCoinsEarned = 0;
+        let prestigeMultiplier = 1;
+        let prestigeCount = 0;
+        let goalAchieved = false;
+
+        const goalRequirement = 1e12;
 
         const upgrades = [
-            { name: "Faster Hands", cost: 50, increment: 1.2, effect: () => incomePerClick += 1 },
-            { name: "Auto Clicker", cost: 100, increment: 1.5, effect: () => incomePerSecond += 2 },
-            { name: "Advanced Tools", cost: 500, increment: 2, effect: () => incomePerClick += 5 },
-        ];
-
-        const quests = [
-            { name: "Earn 100 Coins", condition: () => coins >= 100, reward: () => { coins += 50; alert('Quest Complete: Earn 100 Coins!'); } },
-            { name: "Click 50 Times", condition: () => totalClicks >= 50, reward: () => { incomePerClick += 5; alert('Quest Complete: Click 50 Times!'); } },
+            {
+                name: "Faster Hands",
+                cost: 50,
+                increment: 1.2,
+                effect: () => (incomePerClick += 1),
+                tooltip: "Increases income per click by 1."
+            },
+            {
+                name: "Auto Clicker",
+                cost: 200,
+                increment: 1.5,
+                effect: () => (incomePerSecond += 2),
+                tooltip: "Adds 2 coins per second."
+            },
+            {
+                name: "Advanced Tools",
+                cost: 1000,
+                increment: 2,
+                effect: () => (incomePerClick += 5),
+                tooltip: "Increases income per click by 5."
+            },
+            {
+                name: "Gold Factory",
+                cost: 5000,
+                increment: 2.5,
+                effect: () => (incomePerSecond += 10),
+                tooltip: "Adds 10 coins per second."
+            },
+            {
+                name: "Golden Multiplier",
+                cost: 50000,
+                increment: 3,
+                effect: () => {
+                    incomePerClick *= 2;
+                    incomePerSecond *= 2;
+                },
+                tooltip: "Doubles all income."
+            }
         ];
 
         function updateUI() {
-            document.getElementById("coins").textContent = coins;
-            document.getElementById("income-per-click").textContent = incomePerClick;
-            document.getElementById("income-per-second").textContent = incomePerSecond;
+            document.getElementById("coins").textContent = coins.toLocaleString();
+            document.getElementById("income-per-click").textContent = incomePerClick.toLocaleString();
+            document.getElementById("income-per-second").textContent = incomePerSecond.toLocaleString();
 
-            const progressBar = document.getElementById("progress-bar-inner");
-            progressBar.style.width = `${Math.min(goalProgress, 100)}%`;
+            const progress = Math.min((totalCoinsEarned / goalRequirement) * 100, 100);
+            document.getElementById("goal-progress").textContent = `${progress.toFixed(2)}%`;
+            document.getElementById("goal-btn").disabled = totalCoinsEarned < goalRequirement || goalAchieved;
 
-            document.getElementById("goal-progress").textContent = `${Math.min(goalProgress, 100)}%`;
+            const prestigeButton = document.getElementById("prestige-btn");
+            prestigeButton.disabled = coins < 1000000;
 
-            updateList("upgrades-list", upgrades, buyUpgrade);
-            updateList("quests-list", quests, completeQuest);
-        }
-
-        function updateList(elementId, items, action) {
-            const container = document.getElementById(elementId);
-            container.innerHTML = items.map(
-                (item, index) => `
-                    <button ${action ? "" : "disabled"} onclick="${action.name}(${index})">${item.name} (${item.cost} coins)</button>`
-            ).join("");
+            const upgradesContainer = document.getElementById("upgrades-list");
+            upgradesContainer.innerHTML = upgrades
+                .map(
+                    (upgrade, index) => `
+                        <div class="tooltip">
+                            <button ${
+                                coins >= upgrade.cost ? "" : "disabled"
+                            } onclick="buyUpgrade(${index})">
+                                ${upgrade.name} (${upgrade.cost.toLocaleString()} coins)
+                            </button>
+                            <span>${upgrade.tooltip}</span>
+                        </div>`
+                )
+                .join("");
         }
 
         function clickHandler() {
-            coins += incomePerClick;
-            goalProgress++;
-            totalClicks++;
+            const earnings = incomePerClick * prestigeMultiplier;
+            coins += earnings;
+            totalCoinsEarned += earnings;
             updateUI();
+        }
+
+        function buyUpgrade(index) {
+            const upgrade = upgrades[index];
+            if (coins >= upgrade.cost) {
+                coins -= upgrade.cost;
+                upgrade.effect();
+                upgrade.cost = Math.floor(upgrade.cost * upgrade.increment);
+                updateUI();
+            }
+        }
+
+        function prestige() {
+            if (coins >= 1000000) {
+                coins = 0;
+                incomePerClick = 1;
+                incomePerSecond = 0;
+                upgrades.forEach((u) => {
+                    u.cost = u.cost / Math.pow(u.increment, prestigeCount);
+                });
+                prestigeMultiplier *= 1.5;
+                prestigeCount++;
+                updateUI();
+            }
+        }
+
+        function completeGoal() {
+            if (totalCoinsEarned >= goalRequirement && !goalAchieved) {
+                goalAchieved = true;
+                alert("Congratulations! You've built the Golden Monument and completed the game!");
+            }
         }
 
         function saveGame() {
@@ -167,8 +219,11 @@
                 coins,
                 incomePerClick,
                 incomePerSecond,
-                totalClicks,
-                goalProgress,
+                totalCoinsEarned,
+                prestigeMultiplier,
+                prestigeCount,
+                goalAchieved,
+                upgrades: upgrades.map((u) => ({ cost: u.cost }))
             });
             localStorage.setItem("clickerGameSave", saveData);
             alert("Game Saved!");
@@ -182,23 +237,27 @@
 
         function importGame() {
             const data = document.getElementById("import-input").value;
+            if (!data) return alert("Please enter a valid save string!");
             const parsed = JSON.parse(data);
             coins = parsed.coins;
             incomePerClick = parsed.incomePerClick;
             incomePerSecond = parsed.incomePerSecond;
-            totalClicks = parsed.totalClicks;
-            goalProgress = parsed.goalProgress;
+            totalCoinsEarned = parsed.totalCoinsEarned;
+            prestigeMultiplier = parsed.prestigeMultiplier;
+            prestigeCount = parsed.prestigeCount;
+            goalAchieved = parsed.goalAchieved;
+            upgrades.forEach((u, index) => {
+                u.cost = parsed.upgrades[index].cost;
+            });
             updateUI();
         }
 
-        function completeQuest(index) {
-            const quest = quests[index];
-            if (quest.condition()) {
-                quest.reward();
-                quests.splice(index, 1);
-                updateUI();
-            }
-        }
+        setInterval(() => {
+            const earnings = incomePerSecond * prestigeMultiplier;
+            coins += earnings;
+            totalCoinsEarned += earnings;
+            updateUI();
+        }, 1000);
 
         updateUI();
     </script>
