@@ -1,29 +1,160 @@
+<!DOCTYPE html>
 <html>
-<title>Clicker Clicker</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<head>
+    <title>Sigma Session</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #1d1d1d; color: #fff; }
+        .center { text-align: center; padding: 20px; }
+        .stats, .upgrades, .achievements, .events, .goal { margin: 20px auto; width: 60%; background: #333; padding: 15px; border-radius: 10px; }
+        button { background: #555; color: #fff; border: none; padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #777; }
+        button:disabled { background: #444; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="center">
+        <div class="stats" id="stats">Loading...</div>
+        <button onclick="clickHandler()">Click!</button>
+        <div class="upgrades" id="upgrades"></div>
+        <div class="achievements" id="achievements"></div>
+        <div class="events" id="events"></div>
+        <div class="goal" id="goal"></div>
+        <button onclick="prestige()">Prestige</button>
+    </div>
+    <script>
+        const config = {
+            currencyName: "Coins",
+            prestigeMultiplier: 1.5,
+            endGoal: { name: "The Golden Monument", cost: 1e12, description: "Complete the game and achieve ultimate glory!" },
+            upgrades: [
+                { name: 'Basic Worker', description: '+1/sec', baseCost: 10, increment: 1.5, max: 100, effect: () => moneyPerSec += 1 },
+                { name: 'Advanced Worker', description: '+5/sec', baseCost: 100, increment: 1.8, max: 100, effect: () => moneyPerSec += 5 },
+                { name: 'Elite Worker', description: '+50/sec', baseCost: 1000, increment: 2.0, max: 50, effect: () => moneyPerSec += 50 },
+                { name: 'Main Upgrade', description: '+1/click', baseCost: 50, increment: 1.6, max: Infinity, effect: () => moneyPerClick += 1 },
+                { name: 'Multiplier', description: 'x2 all income', baseCost: 5000, increment: 3.0, max: 10, effect: () => { moneyPerSec *= 2; moneyPerClick *= 2; } },
+                { name: 'Time Manipulator', description: '+1000/sec', baseCost: 1e5, increment: 2.5, max: 20, effect: () => moneyPerSec += 1000 },
+                { name: 'Automation Core', description: 'Auto-click +100/click', baseCost: 1e6, increment: 3.0, max: 15, effect: () => moneyPerClick += 100 },
+                { name: 'Infinity Booster', description: 'x10 all income', baseCost: 1e8, increment: 4.0, max: 5, effect: () => { moneyPerSec *= 10; moneyPerClick *= 10; } },
+            ],
+            achievements: [
+                { name: 'First Click', condition: () => totalClicks >= 1, reward: () => money += 100 },
+                { name: 'Click Master', condition: () => totalClicks >= 100, reward: () => money += 1000 },
+                { name: 'Passive Pro', condition: () => moneyPerSec >= 100, reward: () => moneyPerClick += 10 },
+                { name: 'Wealthy', condition: () => money >= 1e6, reward: () => moneyPerSec += 500 },
+                { name: 'Elite Collector', condition: () => config.upgrades[2].count >= 25, reward: () => money += 1e7 },
+                { name: 'Ultimate Financier', condition: () => prestigeCount >= 5, reward: () => { moneyPerClick *= 2; moneyPerSec *= 2; } },
+            ],
+            events: [
+                { description: 'Lucky Boost! +50% income for 30 seconds.', effect: () => tempMultiplier = 1.5, duration: 30000 },
+                { description: 'Unlucky! Income halved for 15 seconds.', effect: () => tempMultiplier = 0.5, duration: 15000 },
+                { description: 'Mega Jackpot! Earn 1 million instantly.', effect: () => money += 1e6 },
+            ],
+        };
 
-<body onbeforeunload="return closingCode()">
-  <link rel="stylesheet" href="index.css">
-    <script src="index.js"></script>
-  <div class='topbar'>
-    <a href='https://luodingo/sigmasession'>Clicker Clicker</a>
-  </div>
-    <center class='center'>
-      <h1 id='total'>LB: 0</h1>
-      <h5 id="click" style="font-family:trebuchet MS;">LB/click: 1 | LB/sec: 0</h5>
-      <img class="round" src="images/home.png" width="150" onclick='clicked()'></img>
-      <br><br>
-      <button id='upgrade' class="round" onclick='upgrade("upgrade")' style="font-family:courier;">0-main upgrade: 15</button>
-      <br><br>
-      <button id='cat' class="round" onclick='upgrade("clicker cat")' style="font-family:courier;">0-clicker cat: 25 | +1/sec</button>
-      <br><br>
-      <button id='worker' class="round" onclick='upgrade("worker")' style="font-family:courier;">0-worker: 250 | +15/sec</button><br><br>
-      <button class="settings" onclick="save()">Save</button>
-      <button class="settings" onclick="load()">Load</button>
-      <button class="settings" onclick="reset()">Reset</button><br><br>
-    </center>
-  </link>
+        let money = 0, moneyPerClick = 1, moneyPerSec = 0, totalClicks = 0, tempMultiplier = 1, prestigeCount = 0, endGoalAchieved = false;
+        let achievementsUnlocked = [];
+
+        function format(x) {
+            return x.toLocaleString();
+        }
+
+        function updateUI() {
+            document.getElementById("stats").innerHTML = `
+                ${config.currencyName}: ${format(money)} | Click: ${format(moneyPerClick)} | Income: ${format(moneyPerSec)}/sec
+                <br>Prestige: x${Math.pow(config.prestigeMultiplier, prestigeCount)}
+            `;
+            document.getElementById("upgrades").innerHTML = config.upgrades.map((upgrade, i) => `
+                <div>
+                    ${upgrade.name}: ${upgrade.description}<br>
+                    Cost: ${format(upgrade.cost || upgrade.baseCost)} (${upgrade.count || 0}/${upgrade.max === Infinity ? '∞' : upgrade.max})
+                    <button ${money >= (upgrade.cost || upgrade.baseCost) && (upgrade.count || 0) < upgrade.max ? '' : 'disabled'} onclick="buyUpgrade(${i})">Buy</button>
+                </div>
+            `).join('');
+            document.getElementById("achievements").innerHTML = `
+                <h3>Achievements</h3>
+                ${config.achievements.map(a => `
+                    <div>${a.name} - ${achievementsUnlocked.includes(a.name) ? 'Unlocked' : 'Locked'}</div>
+                `).join('')}
+            `;
+            document.getElementById("goal").innerHTML = endGoalAchieved ? `
+                <h3>Congratulations!</h3>
+                You have completed the game by building ${config.endGoal.name}! Thank you for playing!
+            ` : `
+                <h3>End Goal</h3>
+                ${config.endGoal.name}: ${config.endGoal.description}<br>
+                Cost: ${format(config.endGoal.cost)}
+                <button ${money >= config.endGoal.cost ? '' : 'disabled'} onclick="completeGoal()">Build</button>
+            `;
+        }
+
+        function clickHandler() {
+            money += moneyPerClick * tempMultiplier;
+            totalClicks++;
+            checkAchievements();
+            updateUI();
+        }
+
+        function buyUpgrade(index) {
+            const upgrade = config.upgrades[index];
+            const cost = upgrade.cost || upgrade.baseCost;
+            if (money >= cost && (upgrade.count || 0) < upgrade.max) {
+                money -= cost;
+                upgrade.effect();
+                upgrade.count = (upgrade.count || 0) + 1;
+                upgrade.cost = Math.floor(cost * upgrade.increment);
+                updateUI();
+            }
+        }
+
+        function prestige() {
+            if (money >= 1e9) {
+                money = 0;
+                moneyPerClick = 1;
+                moneyPerSec = 0;
+                config.upgrades.forEach(u => { u.count = 0; u.cost = u.baseCost; });
+                prestigeCount++;
+                updateUI();
+            }
+        }
+
+        function completeGoal() {
+            if (money >= config.endGoal.cost) {
+                money -= config.endGoal.cost;
+                endGoalAchieved = true;
+                updateUI();
+            }
+        }
+
+        function checkAchievements() {
+            config.achievements.forEach(a => {
+                if (!achievementsUnlocked.includes(a.name) && a.condition()) {
+                    a.reward();
+                    achievementsUnlocked.push(a.name);
+                    alert(`Achievement Unlocked: ${a.name}`);
+                }
+            });
+        }
+
+        function triggerEvent() {
+            const event = config.events[Math.floor(Math.random() * config.events.length)];
+            document.getElementById("events").innerHTML = `<h3>Event: ${event.description}</h3>`;
+            event.effect();
+            setTimeout(() => {
+                tempMultiplier = 1;
+                document.getElementById("events").innerHTML = '';
+            }, event.duration);
+        }
+
+        setInterval(() => {
+            money += moneyPerSec * tempMultiplier;
+            updateUI();
+        }, 1000);
+
+        setInterval(() => {
+            if (Math.random() < 0.1) triggerEvent();
+        }, 30000);
+
+        updateUI();
+    </script>
 </body>
-</meta>
-
 </html>
