@@ -15,7 +15,7 @@
             max-width: 900px;
             margin: auto;
         }
-        .stats, .upgrades, .research, .goal, .quests {
+        .stats, .upgrades, .research, .quests, .goal {
             background: #2e2e3f;
             margin: 20px 0;
             padding: 20px;
@@ -107,11 +107,20 @@
             <p>Build the <strong>Crystal Tower</strong> to complete the game.</p>
             <p>Progress: <span id="goal-progress">0%</span></p>
         </div>
+        <div>
+            <button onclick="saveGame()">Save Game</button>
+            <button onclick="exportGame()">Export Save</button>
+            <input id="import-input" placeholder="Paste save string here">
+            <button onclick="importGame()">Import Save</button>
+        </div>
     </div>
     <script>
         let coins = 0;
         let incomePerClick = 1;
         let incomePerSecond = 0;
+        let totalClicks = 0;
+        let goalProgress = 0;
+        let saveData = {};
 
         const upgrades = [
             { name: "Faster Hands", cost: 50, increment: 1.2, effect: () => incomePerClick += 1 },
@@ -119,18 +128,10 @@
             { name: "Advanced Tools", cost: 500, increment: 2, effect: () => incomePerClick += 5 },
         ];
 
-        const research = [
-            { name: "Efficiency Boost", cost: 1000, effect: () => { incomePerSecond *= 2; incomePerClick *= 2; } },
-            { name: "Precision Clicking", cost: 5000, effect: () => incomePerClick += 10 },
-        ];
-
         const quests = [
-            { name: "Earn 100 Coins", condition: () => coins >= 100, reward: () => coins += 50 },
-            { name: "Click 50 Times", condition: () => totalClicks >= 50, reward: () => incomePerClick += 5 },
+            { name: "Earn 100 Coins", condition: () => coins >= 100, reward: () => { coins += 50; alert('Quest Complete: Earn 100 Coins!'); } },
+            { name: "Click 50 Times", condition: () => totalClicks >= 50, reward: () => { incomePerClick += 5; alert('Quest Complete: Click 50 Times!'); } },
         ];
-
-        let totalClicks = 0;
-        let goalProgress = 0;
 
         function updateUI() {
             document.getElementById("coins").textContent = coins;
@@ -143,59 +144,61 @@
             document.getElementById("goal-progress").textContent = `${Math.min(goalProgress, 100)}%`;
 
             updateList("upgrades-list", upgrades, buyUpgrade);
-            updateList("research-list", research, buyResearch);
             updateList("quests-list", quests, completeQuest);
         }
 
-        function updateList(elementId, items, onClickHandler) {
+        function updateList(elementId, items, action) {
             const container = document.getElementById(elementId);
             container.innerHTML = items.map(
-                (item, index) =>
-                    `<button ${coins >= item.cost ? "" : "disabled"} onclick="${onClickHandler.name}(${index})">${item.name} (${item.cost} coins)</button>`
+                (item, index) => `
+                    <button ${action ? "" : "disabled"} onclick="${action.name}(${index})">${item.name} (${item.cost} coins)</button>`
             ).join("");
         }
 
         function clickHandler() {
             coins += incomePerClick;
+            goalProgress++;
             totalClicks++;
-            goalProgress += incomePerClick / 100000; // Progress toward ultimate goal
             updateUI();
         }
 
-        function buyUpgrade(index) {
-            const upgrade = upgrades[index];
-            if (coins >= upgrade.cost) {
-                coins -= upgrade.cost;
-                upgrade.effect();
-                upgrade.cost = Math.floor(upgrade.cost * upgrade.increment);
-                updateUI();
-            }
+        function saveGame() {
+            const saveData = JSON.stringify({
+                coins,
+                incomePerClick,
+                incomePerSecond,
+                totalClicks,
+                goalProgress,
+            });
+            localStorage.setItem("clickerGameSave", saveData);
+            alert("Game Saved!");
         }
 
-        function buyResearch(index) {
-            const item = research[index];
-            if (coins >= item.cost) {
-                coins -= item.cost;
-                item.effect();
-                research.splice(index, 1); // Remove after purchase
-                updateUI();
-            }
+        function exportGame() {
+            const saveData = localStorage.getItem("clickerGameSave");
+            navigator.clipboard.writeText(saveData);
+            alert("Save copied to clipboard!");
+        }
+
+        function importGame() {
+            const data = document.getElementById("import-input").value;
+            const parsed = JSON.parse(data);
+            coins = parsed.coins;
+            incomePerClick = parsed.incomePerClick;
+            incomePerSecond = parsed.incomePerSecond;
+            totalClicks = parsed.totalClicks;
+            goalProgress = parsed.goalProgress;
+            updateUI();
         }
 
         function completeQuest(index) {
             const quest = quests[index];
             if (quest.condition()) {
                 quest.reward();
-                quests.splice(index, 1); // Remove after completion
+                quests.splice(index, 1);
                 updateUI();
             }
         }
-
-        setInterval(() => {
-            coins += incomePerSecond;
-            goalProgress += incomePerSecond / 100000; // Progress toward ultimate goal
-            updateUI();
-        }, 1000);
 
         updateUI();
     </script>
