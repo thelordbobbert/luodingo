@@ -100,14 +100,14 @@ function reset() {
 //timer
 function myTimer() {
     money += msec;
-  document.getElementById("total").innerHTML = "LB: " + addcomma(money);
+  document.getElementById("total").innerHTML = "Money: " + addcomma(money);
 }
 setInterval(myTimer, 1000);
 
 //what happens when button is clicked
 function clicked() {
   money += moneyup;
-  document.getElementById("total").innerHTML = "LB: " + addcomma(money);
+  document.getElementById("total").innerHTML = "Money: " + addcomma(money);
 }
 //upgrade function
 function upgrade(name) {
