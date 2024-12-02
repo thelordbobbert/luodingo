@@ -1,4 +1,3 @@
-
 money = 0;
 moneyup = 1;
 msec = 0;
@@ -29,14 +28,14 @@ function addcomma(x) {
 //updates all values
 function reloadall() {
   document.getElementById("click").innerHTML =
-    "Money/click: " + addcomma(moneyup) + " | Money/sec: " + addcomma(msec);
-  document.getElementById("total").innerHTML = "Money: " + addcomma(money);
+    "LB/click: " + addcomma(moneyup) + " | LB/sec: " + addcomma(msec);
+  document.getElementById("total").innerHTML = "LB: " + addcomma(money);
   document.getElementById("cat").innerHTML =
-    catown + "-Black Slave: " + addcomma(catcost) + " | +" + addcomma(catadd) + "/sec";
+    catown + "-clicker cat: " + addcomma(catcost) + " | +" + addcomma(catadd) + "/sec";
   document.getElementById("worker").innerHTML =
-    workerown + "-Jewish Banker: " + addcomma(workercost) + " | +" + addcomma(workadd) + "/sec";
+    workerown + "-worker: " + addcomma(workercost) + " | +" + addcomma(workadd) + "/sec";
   document.getElementById("upgrade").innerHTML =
-    addcomma(upown) + "-Manual Labor: " + addcomma(upcost);
+    addcomma(upown) + "-main upgrade: " + addcomma(upcost);
 }
 //overwrites save file
 function save() {
@@ -100,14 +99,14 @@ function reset() {
 //timer
 function myTimer() {
     money += msec;
-  document.getElementById("total").innerHTML = "Money: " + addcomma(money);
+  document.getElementById("total").innerHTML = "LB: " + addcomma(money);
 }
 setInterval(myTimer, 1000);
 
 //what happens when button is clicked
 function clicked() {
   money += moneyup;
-  document.getElementById("total").innerHTML = "Money: " + addcomma(money);
+  document.getElementById("total").innerHTML = "LB: " + addcomma(money);
 }
 //upgrade function
 function upgrade(name) {
@@ -147,10 +146,10 @@ function upgrade(name) {
       money -= catcost;
       catcost = catcost * 2;
       document.getElementById("cat").innerHTML =
-        catown + "-Black Slave: " + addcomma(catcost) + " | +" + addcomma(catadd * cboost) + "/sec";
+        catown + "-clicker cat: " + addcomma(catcost) + " | +" + addcomma(catadd * cboost) + "/sec";
     } else if (catown == 50) {
       document.getElementById("cat").innerHTML =
-        catown + "-Black Slave: MAX | +15% click/sec";
+        catown + "-clicker cat: MAX | +15% click/sec";
     }
   }
 
@@ -190,10 +189,10 @@ function upgrade(name) {
       money -= workercost;
       workercost = workercost * 3;
       document.getElementById("worker").innerHTML = 
-        workerown + "-Jewish Banker: " + addcomma(workercost) + " | +" + addcomma(workadd * wboost) + "/sec";
+        workerown + "-worker: " + addcomma(workercost) + " | +" + addcomma(workadd * wboost) + "/sec";
     } else if (workerown == 50) {
       document.getElementById("worker").innerHTML =
-        workerown + "-Jewish Banker: MAX | +35% click/sec";
+        workerown + "-worker: MAX | +35% click/sec";
     }
   }
 
@@ -204,7 +203,7 @@ function upgrade(name) {
       upown += 1;
       upcost = upcost * 5;
       document.getElementById("upgrade").innerHTML =
-        addcomma(upown) + "-Manual Labor: " + addcomma(upcost);
+        addcomma(upown) + "-main upgrade: " + addcomma(upcost);
       if (catown == 50) {
         msec -= catmax;
         catmax = Math.floor(moneyup * 0.15);
@@ -219,6 +218,6 @@ function upgrade(name) {
   }
 
   document.getElementById("click").innerHTML =
-    "Money/click: " + addcomma(moneyup) + " | Money/sec: " + addcomma(msec);
-  document.getElementById("total").innerHTML = "Money: " + addcomma(money);
+    "LB/click: " + addcomma(moneyup) + " | LB/sec: " + addcomma(msec);
+  document.getElementById("total").innerHTML = "LB: " + addcomma(money);
 }
