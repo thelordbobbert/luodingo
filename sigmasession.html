@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ultimate Clicker Adventure</title>
+    <title>Ultimate Slavery Clicker</title>
     <style>
         body {
             margin: 0;
@@ -73,7 +73,7 @@
             <h3>Income per Click: <span id="income-per-click">1</span></h3>
             <h3>Income per Second: <span id="income-per-second">0</span></h3>
         </div>
-        <button onclick="clickHandler()">Manual Labor</button>
+        <button onclick="clickHandler()">Pick Cotton</button>
         <div class="upgrades">
             <h2>Upgrades</h2>
             <div id="upgrades-list"></div>
@@ -85,15 +85,15 @@
         </div>
         <div class="goal">
             <h2>End Goal</h2>
-            <p>Build the <strong>Golden Monument</strong> to complete the game.</p>
+            <p>Build the <strong>Golden Plantation</strong> to complete the game.</p>
             <p>Progress: <span id="goal-progress">0%</span></p>
-            <button onclick="completeGoal()" id="goal-btn" disabled>Build Golden Monument (1 trillion coins required)</button>
+            <button onclick="completeGoal()" id="goal-btn" disabled>Build Golden Plantation (1 trillion coins required)</button>
         </div>
         <div>
-            <button onclick="saveGame()">Save Game</button>
             <button onclick="exportGame()">Export Save</button>
             <input id="import-input" placeholder="Paste save string here">
             <button onclick="importGame()">Import Save</button>
+            <button onclick="resetGame()">Reset Game</button>
         </div>
     </div>
     <script>
@@ -148,7 +148,7 @@
                     incomePerClick *= 2;
                     incomePerSecond *= 2;
                 },
-                tooltip: "Doubles all current income.",
+                tooltip: "Doubles all income.",
                 baseCost: 50000
             }
         ];
@@ -179,6 +179,8 @@
                         </div>`
                 )
                 .join("");
+
+            saveGame(); 
         }
 
         function clickHandler() {
@@ -215,23 +217,24 @@
         function completeGoal() {
             if (totalCoinsEarned >= goalRequirement && !goalAchieved) {
                 goalAchieved = true;
-                alert("Congratulations! You've built the Golden Monument and completed the game!");
+                alert("Congratulations! You've built the Golden Plantation and completed the game!");
             }
         }
 
         function saveGame() {
-            const saveData = JSON.stringify({
-                coins,
-                incomePerClick,
-                incomePerSecond,
-                totalCoinsEarned,
-                prestigeMultiplier,
-                prestigeCount,
-                goalAchieved,
-                upgrades: upgrades.map((u) => ({ cost: u.cost }))
-            });
+            const saveData = btoa(
+                JSON.stringify({
+                    coins,
+                    incomePerClick,
+                    incomePerSecond,
+                    totalCoinsEarned,
+                    prestigeMultiplier,
+                    prestigeCount,
+                    goalAchieved,
+                    upgrades: upgrades.map((u) => ({ cost: u.cost }))
+                })
+            );
             localStorage.setItem("clickerGameSave", saveData);
-            alert("Game Saved!");
         }
 
         function exportGame() {
@@ -243,7 +246,7 @@
         function importGame() {
             const data = document.getElementById("import-input").value;
             if (!data) return alert("Please enter a valid save string!");
-            const parsed = JSON.parse(data);
+            const parsed = JSON.parse(atob(data));
             coins = parsed.coins;
             incomePerClick = parsed.incomePerClick;
             incomePerSecond = parsed.incomePerSecond;
@@ -257,12 +260,33 @@
             updateUI();
         }
 
+        function resetGame() {
+            if (confirm("Are you sure you want to reset your progress? This cannot be undone.")) {
+                localStorage.removeItem("clickerGameSave");
+                location.reload();
+            }
+        }
+
         setInterval(() => {
             const earnings = incomePerSecond * prestigeMultiplier;
             coins += earnings;
             totalCoinsEarned += earnings;
             updateUI();
         }, 1000);
+
+        if (localStorage.getItem("clickerGameSave")) {
+            const savedData = JSON.parse(atob(localStorage.getItem("clickerGameSave")));
+            coins = savedData.coins;
+            incomePerClick = savedData.incomePerClick;
+            incomePerSecond = savedData.incomePerSecond;
+            totalCoinsEarned = savedData.totalCoinsEarned;
+            prestigeMultiplier = savedData.prestigeMultiplier;
+            prestigeCount = savedData.prestigeCount;
+            goalAchieved = savedData.goalAchieved;
+            upgrades.forEach((u, index) => {
+                u.cost = savedData.upgrades[index].cost;
+            });
+        }
 
         updateUI();
     </script>
