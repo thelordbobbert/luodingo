@@ -22,6 +22,13 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
         button {
             background: #5567a4;
             color: #fff;
@@ -68,6 +75,7 @@
 </head>
 <body>
     <div class="container">
+        <div class="title">Racism Clicker</div>
         <div class="stats">
             <h1>Coins: <span id="coins">0</span></h1>
             <h3>Income per Click: <span id="income-per-click">1</span></h3>
@@ -108,50 +116,25 @@
         const goalRequirement = 1e12;
 
         const upgrades = [
-            {
-                name: "Faster Hands",
-                cost: 50,
-                increment: 1.2,
-                effect: () => (incomePerClick += 1),
-                tooltip: "Increases income per click by 1.",
-                baseCost: 50
-            },
-            {
-                name: "Black Slave",
-                cost: 200,
-                increment: 1.5,
-                effect: () => (incomePerSecond += 5),
-                tooltip: "Adds 5 coins per second.",
-                baseCost: 200
-            },
-            {
-                name: "Advanced Tools",
-                cost: 1000,
-                increment: 2,
-                effect: () => (incomePerClick += 5),
-                tooltip: "Increases income per click by 5.",
-                baseCost: 1000
-            },
-            {
-                name: "Jewish Banker",
-                cost: 5000,
-                increment: 2.5,
-                effect: () => (incomePerSecond += 50),
-                tooltip: "Adds 50 coins per second.",
-                baseCost: 5000
-            },
-            {
-                name: "Double It",
-                cost: 50000,
-                increment: 3,
-                effect: () => {
-                    incomePerClick *= 2;
-                    incomePerSecond *= 2;
-                },
-                tooltip: "Doubles all income.",
-                baseCost: 50000
-            }
+            { name: "Faster Hands", baseCost: 50, purchases: 0, baseIncome: 1, incrementalBonus: 0.5, effect: () => (incomePerClick += 1), tooltip: "Increases income per click by 1, with an incremental bonus of 0.5." },
+            { name: "Simple Tools", baseCost: 1000, purchases: 0, baseIncome: 10, incrementalBonus: 5, effect: () => (incomePerClick += 10), tooltip: "Increases income per click by 10, with an incremental bonus of 5." },
+            { name: "Cotton Gin", baseCost: 200000, purchases: 0, baseIncome: 250, incrementalBonus: 100, effect: () => (incomePerClick += 250), tooltip: "Increases income per click by 250, with an incremental bonus of 100." },
+            { name: "Black Slave", baseCost: 200, purchases: 0, baseIncome: 5, incrementalBonus: 1, effect: () => (incomePerSecond += 5), tooltip: "Adds 5 coins per second, with an incremental bonus of 1." },
+            { name: "Indian Tech Support", baseCost: 5000, purchases: 0, baseIncome: 50, incrementalBonus: 10, effect: () => (incomePerSecond += 50), tooltip: "Adds 50 coins per second, with an incremental bonus of 10." },
+            { name: "Muslim Terrorist", baseCost: 50000, purchases: 0, baseIncome: 200, incrementalBonus: 100, effect: () => (incomePerSecond += 200), tooltip: "Adds 200 coins per second, with an incremental bonus of 100." },
+            { name: "Jewish Banker", baseCost: 1e6, purchases: 0, baseIncome: 500, incrementalBonus: 200, effect: () => (incomePerSecond += 500), tooltip: "Adds 500 coins per second, with an incremental bonus of 200." },
+            { name: "Klan Member", baseCost: 1e7, purchases: 0, baseIncome: 2500, incrementalBonus: 500, effect: () => (incomePerSecond += 2500), tooltip: "Adds 2500 coins per second, with an incremental bonus of 500." },
+            { name: "Klan Leader", baseCost: 1e8, purchases: 0, baseIncome: 10000, incrementalBonus: 1000, effect: () => (incomePerSecond += 10000), tooltip: "Adds 10,000 coins per second, with an incremental bonus of 1000." },
+            { name: "Hitler", baseCost: 1e10, purchases: 0, baseIncome: 1e6, incrementalBonus: 5e5, effect: () => (incomePerSecond += 1e6), tooltip: "Adds 1,000,000 coins per second, with an incremental bonus of 500,000." },
         ];
+
+        function getUpgradeCost(upgrade) {
+            return Math.floor(upgrade.baseCost * (1 + upgrade.purchases * 0.15));
+        }
+
+        function getUpgradeIncome(upgrade) {
+            return upgrade.baseIncome + upgrade.purchases * upgrade.incrementalBonus;
+        }
 
         function updateUI() {
             document.getElementById("coins").textContent = coins.toLocaleString();
@@ -171,16 +154,16 @@
                     (upgrade, index) => `
                         <div class="tooltip">
                             <button ${
-                                coins >= upgrade.cost ? "" : "disabled"
+                                coins >= getUpgradeCost(upgrade) ? "" : "disabled"
                             } onclick="buyUpgrade(${index})">
-                                ${upgrade.name} (${upgrade.cost.toLocaleString()} coins)
+                                ${upgrade.name} (${getUpgradeCost(upgrade).toLocaleString()} coins)
                             </button>
-                            <span>${upgrade.tooltip}</span>
+                            <span>${upgrade.tooltip} | Income: ${getUpgradeIncome(upgrade).toLocaleString()}</span>
                         </div>`
                 )
                 .join("");
 
-            saveGame(); 
+            saveGame();
         }
 
         function clickHandler() {
@@ -192,10 +175,11 @@
 
         function buyUpgrade(index) {
             const upgrade = upgrades[index];
-            if (coins >= upgrade.cost) {
-                coins -= upgrade.cost;
+            const cost = getUpgradeCost(upgrade);
+            if (coins >= cost) {
+                coins -= cost;
+                upgrade.purchases++;
                 upgrade.effect();
-                upgrade.cost = Math.floor(upgrade.cost * upgrade.increment);
                 updateUI();
             }
         }
@@ -206,7 +190,7 @@
                 incomePerClick = 1;
                 incomePerSecond = 0;
                 upgrades.forEach((u) => {
-                    u.cost = u.baseCost;
+                    u.purchases = 0;
                 });
                 prestigeMultiplier *= 1.5;
                 prestigeCount++;
@@ -231,7 +215,7 @@
                     prestigeMultiplier,
                     prestigeCount,
                     goalAchieved,
-                    upgrades: upgrades.map((u) => ({ cost: u.cost }))
+                    upgrades: upgrades.map((u) => ({ purchases: u.purchases })),
                 })
             );
             localStorage.setItem("clickerGameSave", saveData);
@@ -255,29 +239,28 @@
             prestigeCount = parsed.prestigeCount;
             goalAchieved = parsed.goalAchieved;
             upgrades.forEach((u, index) => {
-                u.cost = parsed.upgrades[index].cost;
+                u.purchases = parsed.upgrades[index].purchases;
             });
             updateUI();
         }
 
         function resetGame() {
-    if (confirm("Are you sure you want to reset your progress? This cannot be undone.")) {
-        localStorage.removeItem("clickerGameSave");
-        coins = 0;
-        incomePerClick = 1;
-        incomePerSecond = 0;
-        totalCoinsEarned = 0;
-        prestigeMultiplier = 1;
-        prestigeCount = 0;
-        goalAchieved = false;
-        upgrades.forEach((u) => {
-            u.cost = u.baseCost;
-        });
-        updateUI();
-        alert("Progress has been reset.");
-    }
-}
-
+            if (confirm("Are you sure you want to reset your progress? This cannot be undone.")) {
+                localStorage.removeItem("clickerGameSave");
+                coins = 0;
+                incomePerClick = 1;
+                incomePerSecond = 0;
+                totalCoinsEarned = 0;
+                prestigeMultiplier = 1;
+                prestigeCount = 0;
+                goalAchieved = false;
+                upgrades.forEach((u) => {
+                    u.purchases = 0;
+                });
+                updateUI();
+                alert("Progress has been reset.");
+            }
+        }
 
         setInterval(() => {
             const earnings = incomePerSecond * prestigeMultiplier;
@@ -296,7 +279,7 @@
             prestigeCount = savedData.prestigeCount;
             goalAchieved = savedData.goalAchieved;
             upgrades.forEach((u, index) => {
-                u.cost = savedData.upgrades[index].cost;
+                u.purchases = savedData.upgrades[index].purchases;
             });
         }
 
