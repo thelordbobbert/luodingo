@@ -73,7 +73,7 @@
             <h3>Income per Click: <span id="income-per-click">1</span></h3>
             <h3>Income per Second: <span id="income-per-second">0</span></h3>
         </div>
-        <button onclick="clickHandler()">Click Me!</button>
+        <button onclick="clickHandler()">Manual Labor</button>
         <div class="upgrades">
             <h2>Upgrades</h2>
             <div id="upgrades-list"></div>
@@ -113,38 +113,43 @@
                 cost: 50,
                 increment: 1.2,
                 effect: () => (incomePerClick += 1),
-                tooltip: "Increases income per click by 1."
+                tooltip: "Increases income per click by 1.",
+                baseCost: 50
             },
             {
-                name: "Auto Clicker",
+                name: "Black Slave",
                 cost: 200,
                 increment: 1.5,
                 effect: () => (incomePerSecond += 2),
-                tooltip: "Adds 2 coins per second."
+                tooltip: "Adds 2 coins per second.",
+                baseCost: 200
             },
             {
                 name: "Advanced Tools",
                 cost: 1000,
                 increment: 2,
                 effect: () => (incomePerClick += 5),
-                tooltip: "Increases income per click by 5."
+                tooltip: "Increases income per click by 5.",
+                baseCost: 1000
             },
             {
-                name: "Gold Factory",
+                name: "Jewish Banker",
                 cost: 5000,
                 increment: 2.5,
                 effect: () => (incomePerSecond += 10),
-                tooltip: "Adds 10 coins per second."
+                tooltip: "Adds 10 coins per second.",
+                baseCost: 5000
             },
             {
-                name: "Golden Multiplier",
+                name: "Double It",
                 cost: 50000,
                 increment: 3,
                 effect: () => {
                     incomePerClick *= 2;
                     incomePerSecond *= 2;
                 },
-                tooltip: "Doubles all income."
+                tooltip: "Doubles all current income.",
+                baseCost: 50000
             }
         ];
 
@@ -199,7 +204,7 @@
                 incomePerClick = 1;
                 incomePerSecond = 0;
                 upgrades.forEach((u) => {
-                    u.cost = 0;
+                    u.cost = u.baseCost;
                 });
                 prestigeMultiplier *= 1.5;
                 prestigeCount++;
