@@ -116,20 +116,20 @@
         const goalRequirement = 1e12;
 
         const upgrades = [
-            { name: "Faster Hands", baseCost: 50, purchases: 0, baseIncome: 1, incrementalBonus: 0.5, effect: () => (incomePerClick += 1), tooltip: "Increases income per click by 1, with an incremental bonus of 0.5." },
-            { name: "Simple Tools", baseCost: 1000, purchases: 0, baseIncome: 10, incrementalBonus: 5, effect: () => (incomePerClick += 10), tooltip: "Increases income per click by 10, with an incremental bonus of 5." },
-            { name: "Cotton Gin", baseCost: 200000, purchases: 0, baseIncome: 250, incrementalBonus: 100, effect: () => (incomePerClick += 250), tooltip: "Increases income per click by 250, with an incremental bonus of 100." },
-            { name: "Black Slave", baseCost: 200, purchases: 0, baseIncome: 5, incrementalBonus: 1, effect: () => (incomePerSecond += 5), tooltip: "Adds 5 coins per second, with an incremental bonus of 1." },
-            { name: "Indian Tech Support", baseCost: 5000, purchases: 0, baseIncome: 50, incrementalBonus: 10, effect: () => (incomePerSecond += 50), tooltip: "Adds 50 coins per second, with an incremental bonus of 10." },
-            { name: "Muslim Terrorist", baseCost: 50000, purchases: 0, baseIncome: 200, incrementalBonus: 100, effect: () => (incomePerSecond += 200), tooltip: "Adds 200 coins per second, with an incremental bonus of 100." },
-            { name: "Jewish Banker", baseCost: 1e6, purchases: 0, baseIncome: 500, incrementalBonus: 200, effect: () => (incomePerSecond += 500), tooltip: "Adds 500 coins per second, with an incremental bonus of 200." },
-            { name: "Klan Member", baseCost: 1e7, purchases: 0, baseIncome: 2500, incrementalBonus: 500, effect: () => (incomePerSecond += 2500), tooltip: "Adds 2500 coins per second, with an incremental bonus of 500." },
-            { name: "Klan Leader", baseCost: 1e8, purchases: 0, baseIncome: 10000, incrementalBonus: 1000, effect: () => (incomePerSecond += 10000), tooltip: "Adds 10,000 coins per second, with an incremental bonus of 1000." },
-            { name: "Hitler", baseCost: 1e10, purchases: 0, baseIncome: 1e6, incrementalBonus: 5e5, effect: () => (incomePerSecond += 1e6), tooltip: "Adds 1,000,000 coins per second, with an incremental bonus of 500,000." },
+            { name: "Faster Hands", baseCost: 50, purchases: 0, baseIncome: 1, incrementalBonus: 0.5, type: "click", tooltip: "Increases income per click by 1, with an incremental bonus of 0.5." },
+            { name: "Simple Tools", baseCost: 1000, purchases: 0, baseIncome: 10, incrementalBonus: 5, type: "click", tooltip: "Increases income per click by 10, with an incremental bonus of 5." },
+            { name: "Cotton Gin", baseCost: 200000, purchases: 0, baseIncome: 250, incrementalBonus: 100, type: "click", tooltip: "Increases income per click by 250, with an incremental bonus of 100." },
+            { name: "Black Slave", baseCost: 200, purchases: 0, baseIncome: 5, incrementalBonus: 1, type: "passive", tooltip: "Adds 5 coins per second, with an incremental bonus of 1." },
+            { name: "Indian Tech Support", baseCost: 5000, purchases: 0, baseIncome: 50, incrementalBonus: 10, type: "passive", tooltip: "Adds 50 coins per second, with an incremental bonus of 10." },
+            { name: "Muslim Terrorist", baseCost: 50000, purchases: 0, baseIncome: 200, incrementalBonus: 100, type: "passive", tooltip: "Adds 200 coins per second, with an incremental bonus of 100." },
+            { name: "Jewish Banker", baseCost: 1e6, purchases: 0, baseIncome: 500, incrementalBonus: 200, type: "passive", tooltip: "Adds 500 coins per second, with an incremental bonus of 200." },
+            { name: "Klan Member", baseCost: 1e7, purchases: 0, baseIncome: 2500, incrementalBonus: 500, type: "passive", tooltip: "Adds 2500 coins per second, with an incremental bonus of 500." },
+            { name: "Klan Leader", baseCost: 1e8, purchases: 0, baseIncome: 10000, incrementalBonus: 1000, type: "passive", tooltip: "Adds 10,000 coins per second, with an incremental bonus of 1000." },
+            { name: "Hitler", baseCost: 1e10, purchases: 0, baseIncome: 1e6, incrementalBonus: 5e5, type: "passive", tooltip: "Adds 1,000,000 coins per second, with an incremental bonus of 500,000." },
         ];
 
         function getUpgradeCost(upgrade) {
-            return Math.floor(upgrade.baseCost * (1 + upgrade.purchases * 0.15));
+            return Math.floor(upgrade.baseCost * Math.pow(1.15, upgrade.purchases));
         }
 
         function getUpgradeIncome(upgrade) {
@@ -176,10 +176,17 @@
         function buyUpgrade(index) {
             const upgrade = upgrades[index];
             const cost = getUpgradeCost(upgrade);
+
             if (coins >= cost) {
                 coins -= cost;
                 upgrade.purchases++;
-                upgrade.effect();
+
+                if (upgrade.type === "click") {
+                    incomePerClick += upgrade.baseIncome + (upgrade.purchases - 1) * upgrade.incrementalBonus;
+                } else if (upgrade.type === "passive") {
+                    incomePerSecond += upgrade.baseIncome + (upgrade.purchases - 1) * upgrade.incrementalBonus;
+                }
+
                 updateUI();
             }
         }
@@ -219,29 +226,6 @@
                 })
             );
             localStorage.setItem("clickerGameSave", saveData);
-        }
-
-        function exportGame() {
-            const saveData = localStorage.getItem("clickerGameSave");
-            navigator.clipboard.writeText(saveData);
-            alert("Save copied to clipboard!");
-        }
-
-        function importGame() {
-            const data = document.getElementById("import-input").value;
-            if (!data) return alert("Please enter a valid save string!");
-            const parsed = JSON.parse(atob(data));
-            coins = parsed.coins;
-            incomePerClick = parsed.incomePerClick;
-            incomePerSecond = parsed.incomePerSecond;
-            totalCoinsEarned = parsed.totalCoinsEarned;
-            prestigeMultiplier = parsed.prestigeMultiplier;
-            prestigeCount = parsed.prestigeCount;
-            goalAchieved = parsed.goalAchieved;
-            upgrades.forEach((u, index) => {
-                u.purchases = parsed.upgrades[index].purchases;
-            });
-            updateUI();
         }
 
         function resetGame() {
