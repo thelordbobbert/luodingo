@@ -199,7 +199,7 @@
                 incomePerClick = 1;
                 incomePerSecond = 0;
                 upgrades.forEach((u) => {
-                    u.cost = u.cost / Math.pow(u.increment, prestigeCount);
+                    u.cost = 0;
                 });
                 prestigeMultiplier *= 1.5;
                 prestigeCount++;
