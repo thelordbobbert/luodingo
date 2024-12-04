@@ -165,25 +165,19 @@
         }
 
         /* Tooltip Styles */
-        .tooltip {
-            position: absolute;
+        #tooltip {
+            position: fixed;
             background-color: #333;
             color: #fff;
             padding: 5px 10px;
             border-radius: 5px;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
             white-space: nowrap;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.2s;
-            z-index: 10;
-        }
-
-        .upgrade-item:hover .tooltip {
-            opacity: 1;
-            visibility: visible;
+            transition: opacity 0.1s;
+            z-index: 1000;
+            pointer-events: none;
+            font-size: 14px;
         }
 
         /* Purchase Quantity Buttons */
@@ -380,6 +374,9 @@
 <body>
     <!-- Notification -->
     <div id="notification"></div>
+
+    <!-- Tooltip -->
+    <div id="tooltip"></div>
 
     <!-- Header -->
     <div id="header">
@@ -593,6 +590,7 @@
         const unlockablesListElem = document.getElementById('unlockables-list');
         const highlightToggleElem = document.getElementById('highlight-toggle');
         const settingsSectionElem = document.getElementById('settings-section');
+        const tooltipElem = document.getElementById('tooltip');
 
         function saveGame() {
             const saveData = {
@@ -699,8 +697,6 @@
                 clearInterval(holdInterval);
             }
         });
-
-        // Removed the 'click' event listener to fix double coin issue
 
         function clickCoin() {
             const coinsGained = ipc;
@@ -848,16 +844,15 @@
                 const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantity);
                 upgradeCost.textContent = `Cost: ${formatNumber(cost)}`;
 
-                // Tooltip
-                const tooltip = document.createElement('div');
-                tooltip.classList.add('tooltip');
-                tooltip.textContent = upgrade.description;
-
                 upgradeInfo.appendChild(upgradeName);
                 upgradeInfo.appendChild(upgradeCost);
                 upgradeItem.appendChild(upgradeInfo);
-                upgradeItem.appendChild(tooltip);
                 clickUpgradesListElem.appendChild(upgradeItem);
+
+                // Tooltip Events
+                upgradeItem.addEventListener('mouseover', (e) => showTooltip(e, upgrade.description));
+                upgradeItem.addEventListener('mousemove', (e) => moveTooltip(e));
+                upgradeItem.addEventListener('mouseout', hideTooltip);
             });
 
             passiveUpgradesListElem.innerHTML = '';
@@ -879,16 +874,15 @@
                 const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantity);
                 upgradeCost.textContent = `Cost: ${formatNumber(cost)}`;
 
-                // Tooltip
-                const tooltip = document.createElement('div');
-                tooltip.classList.add('tooltip');
-                tooltip.textContent = upgrade.description;
-
                 upgradeInfo.appendChild(upgradeName);
                 upgradeInfo.appendChild(upgradeCost);
                 upgradeItem.appendChild(upgradeInfo);
-                upgradeItem.appendChild(tooltip);
                 passiveUpgradesListElem.appendChild(upgradeItem);
+
+                // Tooltip Events
+                upgradeItem.addEventListener('mouseover', (e) => showTooltip(e, upgrade.description));
+                upgradeItem.addEventListener('mousemove', (e) => moveTooltip(e));
+                upgradeItem.addEventListener('mouseout', hideTooltip);
             });
 
             holdClickUpgradesListElem.innerHTML = '';
@@ -910,20 +904,25 @@
                 const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantity);
                 upgradeCost.textContent = `Cost: ${formatNumber(cost)}`;
 
-                // Tooltip
-                const tooltip = document.createElement('div');
-                tooltip.classList.add('tooltip');
-                tooltip.textContent = upgrade.description;
-
                 upgradeInfo.appendChild(upgradeName);
                 upgradeInfo.appendChild(upgradeCost);
                 upgradeItem.appendChild(upgradeInfo);
-                upgradeItem.appendChild(tooltip);
                 holdClickUpgradesListElem.appendChild(upgradeItem);
+
+                // Tooltip Events
+                upgradeItem.addEventListener('mouseover', (e) => showTooltip(e, upgrade.description));
+                upgradeItem.addEventListener('mousemove', (e) => moveTooltip(e));
+                upgradeItem.addEventListener('mouseout', hideTooltip);
             });
         }
 
         function highlightBestUpgrades() {
+            const clickUpgradeItems = clickUpgradesListElem.querySelectorAll('.upgrade-item');
+            const passiveUpgradeItems = passiveUpgradesListElem.querySelectorAll('.upgrade-item');
+
+            clickUpgradeItems.forEach(item => item.classList.remove('highlight'));
+            passiveUpgradeItems.forEach(item => item.classList.remove('highlight'));
+
             if (!highlightEnabled) return;
 
             let bestClickUpgradeIndex = -1;
@@ -946,15 +945,12 @@
                 }
             });
 
-            const clickUpgradeItems = clickUpgradesListElem.querySelectorAll('.upgrade-item');
-            clickUpgradeItems.forEach((item, index) => {
-                item.classList.toggle('highlight', index === bestClickUpgradeIndex);
-            });
-
-            const passiveUpgradeItems = passiveUpgradesListElem.querySelectorAll('.upgrade-item');
-            passiveUpgradeItems.forEach((item, index) => {
-                item.classList.toggle('highlight', index === bestPassiveUpgradeIndex);
-            });
+            if (bestClickUpgradeIndex !== -1) {
+                clickUpgradeItems[bestClickUpgradeIndex].classList.add('highlight');
+            }
+            if (bestPassiveUpgradeIndex !== -1) {
+                passiveUpgradeItems[bestPassiveUpgradeIndex].classList.add('highlight');
+            }
         }
 
         prestigeButtonElem.addEventListener('click', () => {
@@ -1030,6 +1026,35 @@
             highlightEnabled = highlightToggleElem.checked;
             highlightBestUpgrades();
         });
+
+        function showTooltip(e, text) {
+            tooltipElem.textContent = text;
+            tooltipElem.style.opacity = '1';
+            tooltipElem.style.visibility = 'visible';
+            moveTooltip(e);
+        }
+
+        function moveTooltip(e) {
+            const tooltipWidth = tooltipElem.offsetWidth;
+            const tooltipHeight = tooltipElem.offsetHeight;
+            let x = e.clientX + 15;
+            let y = e.clientY + 15;
+
+            if (x + tooltipWidth > window.innerWidth) {
+                x = e.clientX - tooltipWidth - 15;
+            }
+            if (y + tooltipHeight > window.innerHeight) {
+                y = e.clientY - tooltipHeight - 15;
+            }
+
+            tooltipElem.style.left = x + 'px';
+            tooltipElem.style.top = y + 'px';
+        }
+
+        function hideTooltip() {
+            tooltipElem.style.opacity = '0';
+            tooltipElem.style.visibility = 'hidden';
+        }
 
         setInterval(() => {
             coins += cps / 10;
