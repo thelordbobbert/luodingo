@@ -41,13 +41,14 @@
             overflow: hidden;
         }
         #left-panel, #right-panel {
-            width: 20%;
+            width: 25%;
             background-color: #3b3b3b;
             padding: 10px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
         #center-panel {
             flex: 1;
@@ -57,6 +58,7 @@
             background-color: #2b2b2b;
             position: relative;
             padding: 10px;
+            justify-content: center;
         }
         #gold-display {
             margin-bottom: 10px;
@@ -122,22 +124,24 @@
         }
         .upgrade-list {
             list-style: none;
-            max-height: 300px;
-            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             padding: 0;
             margin: 0;
             width: 100%;
         }
         .upgrade-item {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            align-items: center;
             padding: 5px;
             background-color: #4b4b4b;
-            margin-bottom: 5px;
+            margin: 5px;
             cursor: pointer;
             border: 1px solid transparent;
             border-radius: 5px;
-            position: relative;
+            width: 45%;
         }
         .upgrade-item:hover {
             border-color: #6e6e6e;
@@ -149,11 +153,12 @@
         .upgrade-info {
             display: flex;
             flex-direction: column;
-            width: 100%;
+            align-items: center;
         }
         .upgrade-name {
             font-size: 14px;
             font-weight: bold;
+            text-align: center;
         }
         .upgrade-cost {
             font-size: 12px;
@@ -325,17 +330,6 @@
             margin-top: 10px;
             text-align: center;
         }
-        #achievements-section {
-            margin-top: 10px;
-            text-align: center;
-        }
-        #achievements-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            max-height: 100px;
-            overflow-y: auto;
-        }
         @media (max-width: 768px) {
             #left-panel, #right-panel {
                 display: none;
@@ -353,6 +347,9 @@
             #gold-display h2 {
                 font-size: 18px;
             }
+            .upgrade-item {
+                width: 90%;
+            }
         }
     </style>
 </head>
@@ -366,19 +363,9 @@
     <div id="main-content">
         <div id="panels-container">
             <div id="left-panel">
-                <div id="purchase-quantity">
-                    <button class="quantity-button active" data-quantity="1">x1</button>
-                    <button class="quantity-button" data-quantity="10">x10</button>
-                    <button class="quantity-button" data-quantity="100">x100</button>
-                    <button class="quantity-button" data-quantity="max">Max</button>
-                </div>
                 <div class="upgrade-section">
                     <h3>Dragon Upgrades</h3>
                     <ul id="dragon-upgrades" class="upgrade-list"></ul>
-                </div>
-                <div class="upgrade-section" id="fire-breath-upgrade-section" style="display: none;">
-                    <h3>Fire Breath Upgrade</h3>
-                    <ul id="fire-breath-upgrade" class="upgrade-list"></ul>
                 </div>
             </div>
             <div id="center-panel">
@@ -388,6 +375,12 @@
                     <p>Gold Per Second (GPS): <span id="gps-display">0</span></p>
                 </div>
                 <div id="clickable-coin"></div>
+                <div id="purchase-quantity">
+                    <button class="quantity-button active" data-quantity="1">x1</button>
+                    <button class="quantity-button" data-quantity="10">x10</button>
+                    <button class="quantity-button" data-quantity="100">x100</button>
+                    <button class="quantity-button" data-quantity="max">Max</button>
+                </div>
                 <div id="prestige-section">
                     <h3>Prestige Progress</h3>
                     <p>Gold: <span id="gold-for-prestige">0</span> / <span id="prestige-threshold">100,000</span></p>
@@ -400,10 +393,6 @@
                     </div>
                     <p><span id="treasure-progress-text">0%</span> Complete</p>
                 </div>
-                <div id="achievements-section">
-                    <h3>Achievements</h3>
-                    <ul id="achievements-list"></ul>
-                </div>
                 <div id="unlockables">
                     <h3>Unlockables</h3>
                     <ul id="unlockables-list"></ul>
@@ -413,6 +402,10 @@
                 <div class="upgrade-section">
                     <h3>Minion Upgrades</h3>
                     <ul id="minion-upgrades" class="upgrade-list"></ul>
+                </div>
+                <div class="upgrade-section" id="fire-breath-upgrade-section" style="display: none;">
+                    <h3>Fire Breath Upgrade</h3>
+                    <ul id="fire-breath-upgrade" class="upgrade-list"></ul>
                 </div>
                 <div class="upgrade-section" id="settings-section" style="display: none;">
                     <h3>Settings</h3>
@@ -447,7 +440,6 @@
         let holdInterval;
         let highlightUnlocked = false;
         let highlightEnabled = false;
-        let achievementsUnlocked = [];
         let legendaryTreasureProgress = 0;
         const maxFireBreathLevel = 50;
         let totalPassiveGold = 0;
@@ -471,8 +463,6 @@
         const settingsSectionElem = document.getElementById('settings-section');
         const tooltipElem = document.getElementById('tooltip');
         const fireBreathUpgradeSectionElem = document.getElementById('fire-breath-upgrade-section');
-        const achievementsListElem = document.getElementById('achievements-list');
-        const centerPanel = document.getElementById('center-panel');
         const treasureProgressBarElem = document.getElementById('treasure-progress-bar');
         const treasureProgressTextElem = document.getElementById('treasure-progress-text');
         const dragonUpgrades = [
@@ -514,18 +504,6 @@
             { name: "Auto Ascend", requiredPP: 10, unlocked: false },
             { name: "Treasure Seeker", requiredPP: 15, unlocked: false },
         ];
-        const achievements = [
-            { id: 1, name: "First Gold", description: "Collect your first piece of gold.", condition: () => totalClicks >= 1, unlocked: false },
-            { id: 2, name: "Dragon Apprentice", description: "Collect 100 gold.", condition: () => gold >= 100, unlocked: false },
-            { id: 3, name: "Wealth Hoarder", description: "Accumulate 1,000,000 gold.", condition: () => gold >= 1e6, unlocked: false },
-            { id: 4, name: "Minion Master", description: "Hire 50 minions.", condition: () => totalMinionUpgrades() >= 50, unlocked: false },
-            { id: 5, name: "Ascendant Dragon", description: "Ascend for the first time.", condition: () => prestigePoints >= 1, unlocked: false },
-            { id: 6, name: "Gold Collector", description: "Collect 1,000,000 gold by clicking.", condition: () => totalClicks * gpc >= 1e6, unlocked: false },
-            { id: 7, name: "Master Dragon", description: "Collect 10,000 gold.", condition: () => gold >= 10000, unlocked: false },
-            { id: 8, name: "Passive Wealth", description: "Earn 1,000,000 gold passively.", condition: () => totalPassiveGold >= 1e6, unlocked: false },
-            { id: 9, name: "Legendary Hoard", description: "Acquire the Legendary Treasure.", condition: () => legendaryTreasureProgress >= 100, unlocked: false },
-            { id: 10, name: "Ascension Master", description: "Ascend 10 times.", condition: () => prestigePoints >= 10, unlocked: false },
-        ];
         function init() {
             loadGame();
             calculateGPC();
@@ -534,7 +512,6 @@
             updateDisplay();
             renderUpgrades();
             checkUnlockables();
-            checkAchievements();
             highlightToggleElem.checked = highlightEnabled;
             setInterval(gameLoop, 100);
             setInterval(saveGame, 60000);
@@ -544,7 +521,6 @@
             gold += income;
             totalPassiveGold += income;
             updateDisplay();
-            checkAchievements();
         }
         function saveGame() {
             const saveData = {
@@ -562,7 +538,6 @@
                 dragonUpgrades,
                 minionUpgrades,
                 unlockables,
-                achievementsUnlocked,
                 legendaryTreasureProgress,
                 timestamp: Date.now(),
             };
@@ -603,7 +578,6 @@
                         unlockable.unlocked = savedUnlockable.unlocked || false;
                     }
                 });
-                achievementsUnlocked = savedData.achievementsUnlocked || [];
                 legendaryTreasureProgress = savedData.legendaryTreasureProgress || 0;
                 const offlineTime = (Date.now() - savedData.timestamp) / 1000;
                 const offlineEarnings = gps * offlineTime;
@@ -642,7 +616,6 @@
             } else {
                 fireBreathUpgradeSectionElem.style.display = 'none';
             }
-            renderAchievements();
         }
         clickableCoinElem.addEventListener('mousedown', () => {
             if (!canUseFireBreath()) return;
@@ -676,7 +649,6 @@
                 floatingText.remove();
             }, 800);
             updateDisplay();
-            checkAchievements();
         }
         function calculateGPC() {
             gpc = (1 + dragonUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity * upgrade.multiplier, 0)) * prestigeMultiplier;
@@ -848,7 +820,7 @@
                 upgradeInfo.appendChild(upgradeCost);
                 upgradeItem.appendChild(upgradeInfo);
                 fireBreathUpgradeListElem.appendChild(upgradeItem);
-                upgradeItem.addEventListener('mouseover', (e) => showTooltip(e, upgrade.description));
+                upgradeItem.addEventListener('mouseover', (e) => showTooltip(e, fireBreathUpgrade.description));
                 upgradeItem.addEventListener('mousemove', (e) => moveTooltip(e));
                 upgradeItem.addEventListener('mouseout', hideTooltip);
             }
@@ -954,27 +926,6 @@
                 unlockablesListElem.appendChild(listItem);
             });
         }
-        function checkAchievements() {
-            achievements.forEach(achievement => {
-                if (!achievement.unlocked && achievement.condition()) {
-                    achievement.unlocked = true;
-                    achievementsUnlocked.push(achievement.id);
-                    showNotification(`Achievement Unlocked: ${achievement.name}`);
-                }
-            });
-            renderAchievements();
-        }
-        function renderAchievements() {
-            achievementsListElem.innerHTML = '';
-            achievements.forEach(achievement => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${achievement.name} - ${achievement.unlocked ? 'Unlocked' : 'Locked'}`;
-                achievementsListElem.appendChild(listItem);
-            });
-        }
-        function totalMinionUpgrades() {
-            return minionUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity, 0);
-        }
         highlightToggleElem.addEventListener('change', () => {
             highlightEnabled = highlightToggleElem.checked;
             highlightBestUpgrades();
@@ -1043,7 +994,6 @@
                     updateDisplay();
                     renderUpgrades();
                     checkUnlockables();
-                    checkAchievements();
                     showNotification('Game loaded successfully!');
                 } catch (e) {
                     showNotification('Invalid save code.');
