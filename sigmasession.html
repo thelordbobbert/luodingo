@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Click Quest</title>
     <style>
+        /* Reset and Basic Styles */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -51,6 +52,7 @@
             align-items: center;
             justify-content: center;
             background-color: #1e1e1e;
+            position: relative;
         }
 
         #coin-display {
@@ -62,6 +64,7 @@
             font-size: 24px;
         }
 
+        /* Clickable Coin */
         #clickable-coin {
             width: 200px;
             height: 200px;
@@ -76,6 +79,7 @@
             position: relative;
             box-shadow: 0 0 10px #ffd700;
             margin-bottom: 20px;
+            transition: transform 0.1s;
         }
 
         #clickable-coin:active {
@@ -83,6 +87,7 @@
             transform: scale(0.95);
         }
 
+        /* Floating Text Effect */
         .floating-text {
             position: absolute;
             animation: float-up 1s ease-out forwards;
@@ -90,19 +95,24 @@
             color: #ffd700;
             font-size: 24px;
             font-weight: bold;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-shadow: 0 0 5px #fff;
         }
 
         @keyframes float-up {
             0% {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translate(-50%, -50%) translateY(0);
             }
             100% {
                 opacity: 0;
-                transform: translateY(-50px);
+                transform: translate(-50%, -50%) translateY(-50px);
             }
         }
 
+        /* Upgrade Panels */
         .upgrade-section {
             margin-bottom: 20px;
         }
@@ -152,6 +162,7 @@
             color: #ccc;
         }
 
+        /* Purchase Quantity Buttons */
         #purchase-quantity {
             display: flex;
             justify-content: center;
@@ -173,6 +184,7 @@
             color: #000;
         }
 
+        /* Prestige Section */
         #prestige-section {
             margin-top: 20px;
             text-align: center;
@@ -195,6 +207,7 @@
             cursor: not-allowed;
         }
 
+        /* Golden Monument Section */
         #golden-monument {
             margin-top: 20px;
             text-align: center;
@@ -232,6 +245,38 @@
             border-radius: 5px;
         }
 
+        /* Notification System */
+        #notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #2e2e2e;
+            color: #f1f1f1;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+            z-index: 100;
+            opacity: 0;
+            animation: fade-in-out 3s forwards;
+        }
+
+        @keyframes fade-in-out {
+            0% {
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
             #main-content {
                 flex-direction: column;
@@ -246,11 +291,18 @@
     </style>
 </head>
 <body>
+    <!-- Notification -->
+    <div id="notification"></div>
+
+    <!-- Header -->
     <div id="header">
         <h1>Click Quest</h1>
         <p>Prestige Points: <span id="prestige-points">0</span> (Multiplier: x<span id="prestige-multiplier">1</span>)</p>
     </div>
+
+    <!-- Main Content -->
     <div id="main-content">
+        <!-- Left Panel -->
         <div id="left-panel">
             <div id="purchase-quantity">
                 <button class="quantity-button active" data-quantity="1">x1</button>
@@ -263,6 +315,8 @@
                 <ul id="click-upgrades" class="upgrade-list"></ul>
             </div>
         </div>
+
+        <!-- Center Panel -->
         <div id="center-panel">
             <div id="coin-display">
                 <h2>Coins: <span id="coin-count">0</span></h2>
@@ -283,6 +337,8 @@
                 <p><span id="monument-progress-text">0%</span> Complete</p>
             </div>
         </div>
+
+        <!-- Right Panel -->
         <div id="right-panel">
             <div class="upgrade-section">
                 <h3>Passive Upgrades</h3>
@@ -290,12 +346,15 @@
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
     <div id="footer">
         <button id="save-button">Save Game</button>
         <button id="export-button">Export Save</button>
         <button id="import-button">Import Save</button>
         <button id="reset-button">Reset Game</button>
     </div>
+
     <script>
         let coins = 0;
         let ipc = 1;
@@ -305,7 +364,7 @@
         let prestigeMultiplier = 1;
         let prestigeThreshold = 1000000;
         let purchaseQuantity = 1;
-        let goldenMonumentCost = 1000000000000; // 1 trillion
+        let goldenMonumentCost = 10000000000000; // 10 trillion
         let goldenMonumentProgress = 0;
 
         const clickUpgrades = [
@@ -338,6 +397,7 @@
         const monumentProgressBarElem = document.getElementById('monument-progress-bar');
         const monumentProgressTextElem = document.getElementById('monument-progress-text');
         const purchaseQuantityButtons = document.querySelectorAll('.quantity-button');
+        const notificationElem = document.getElementById('notification');
 
         function saveGame() {
             const saveData = {
@@ -354,7 +414,7 @@
                 timestamp: Date.now(),
             };
             localStorage.setItem('clickQuestSave', JSON.stringify(saveData));
-            alert('Game Saved!');
+            showNotification('Game Saved!');
         }
 
         function loadGame() {
@@ -379,7 +439,7 @@
                 const offlineTime = (Date.now() - savedData.timestamp) / 1000;
                 const offlineEarnings = cps * offlineTime;
                 coins += offlineEarnings;
-                alert(`Welcome back! You earned ${formatNumber(offlineEarnings)} coins while offline.`);
+                showNotification(`Welcome back! You earned ${formatNumber(offlineEarnings)} coins while offline.`);
             }
         }
 
@@ -391,10 +451,11 @@
         }
 
         function formatNumber(num) {
-            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
-            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
-            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
-            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            if (num >= 1e15) return (num / 1e15).toFixed(2) + 'q';
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 't';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'b';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'm';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'k';
             return num.toFixed(2);
         }
 
@@ -418,10 +479,8 @@
 
             const floatingText = document.createElement('span');
             floatingText.classList.add('floating-text');
-            floatingText.style.left = `${50}%`;
-            floatingText.style.top = `${50}%`;
             floatingText.textContent = `+${formatNumber(coinsGained)}`;
-            clickableCoinElem.appendChild(floatingText);
+            centerPanel.appendChild(floatingText);
 
             setTimeout(() => {
                 floatingText.remove();
@@ -451,7 +510,7 @@
                 updateDisplay();
                 renderUpgrades();
             } else {
-                alert('Not enough coins!');
+                showNotification('Not enough coins!');
             }
         }
 
@@ -468,7 +527,7 @@
                 updateDisplay();
                 renderUpgrades();
             } else {
-                alert('Not enough coins!');
+                showNotification('Not enough coins!');
             }
         }
 
@@ -617,7 +676,7 @@
             calculateCPS();
             updateDisplay();
             renderUpgrades();
-            alert(`You have prestiged! Your new prestige multiplier is x${prestigeMultiplier}.`);
+            showNotification(`You have prestiged! Your new prestige multiplier is x${prestigeMultiplier}.`);
         }
 
         function updateMonumentProgress() {
@@ -626,8 +685,17 @@
             monumentProgressTextElem.textContent = `${progress.toFixed(2)}%`;
             if (progress >= 100 && goldenMonumentProgress === 0) {
                 goldenMonumentProgress = 1;
-                alert('Congratulations! You have built the Golden Monument!');
+                showNotification('Congratulations! You have built the Golden Monument!');
             }
+        }
+
+        function showNotification(message) {
+            notificationElem.textContent = message;
+            notificationElem.style.display = 'block';
+            notificationElem.style.animation = 'none';
+            setTimeout(() => {
+                notificationElem.style.animation = '';
+            }, 10);
         }
 
         setInterval(() => {
@@ -655,6 +723,8 @@
             }
         });
         document.getElementById('reset-button').addEventListener('click', resetGame);
+
+        const centerPanel = document.getElementById('center-panel');
 
         function init() {
             loadGame();
