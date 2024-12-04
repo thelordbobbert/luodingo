@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Click Quest</title>
     <style>
-        /* Reset and Basic Styles */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -64,7 +63,6 @@
             font-size: 24px;
         }
 
-        /* Clickable Coin */
         #clickable-coin {
             width: 200px;
             height: 200px;
@@ -80,6 +78,7 @@
             box-shadow: 0 0 10px #ffd700;
             margin-bottom: 20px;
             transition: transform 0.1s;
+            user-select: none;
         }
 
         #clickable-coin:active {
@@ -87,12 +86,11 @@
             transform: scale(0.95);
         }
 
-        /* Floating Text Effect */
         .floating-text {
             position: absolute;
             animation: float-up 0.8s ease-out forwards;
             pointer-events: none;
-            color: #ffffff; /* Changed to white for better visibility */
+            color: #ffffff;
             font-size: 24px;
             font-weight: bold;
             left: 50%;
@@ -112,7 +110,6 @@
             }
         }
 
-        /* Upgrade Panels */
         .upgrade-section {
             margin-bottom: 20px;
         }
@@ -162,7 +159,6 @@
             color: #ccc;
         }
 
-        /* Purchase Quantity Buttons */
         #purchase-quantity {
             display: flex;
             justify-content: center;
@@ -184,7 +180,6 @@
             color: #000;
         }
 
-        /* Prestige Section */
         #prestige-section {
             margin-top: 20px;
             text-align: center;
@@ -207,7 +202,6 @@
             cursor: not-allowed;
         }
 
-        /* Golden Monument Section */
         #golden-monument {
             margin-top: 20px;
             text-align: center;
@@ -229,7 +223,6 @@
             width: 0%;
         }
 
-        /* Footer */
         #footer {
             display: flex;
             justify-content: center;
@@ -246,10 +239,9 @@
             border-radius: 5px;
         }
 
-        /* Notification System */
         #notification {
             position: fixed;
-            top: 20px; /* Moved to the top */
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             background-color: #2e2e2e;
@@ -259,7 +251,7 @@
             display: none;
             z-index: 100;
             opacity: 0;
-            animation: fade-in-out 2s forwards; /* Shortened duration */
+            animation: fade-in-out 2s forwards;
         }
 
         @keyframes fade-in-out {
@@ -275,6 +267,71 @@
             100% {
                 opacity: 0;
             }
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .toggle-label {
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .toggle-input {
+            width: 40px;
+            height: 20px;
+            position: relative;
+        }
+
+        .toggle-input input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #888;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #ffd700;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+
+        #unlockables {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #unlockables-list {
+            list-style: none;
+            padding: 0;
         }
 
         /* Responsive Design */
@@ -315,6 +372,10 @@
                 <h3>Click Upgrades</h3>
                 <ul id="click-upgrades" class="upgrade-list"></ul>
             </div>
+            <div class="upgrade-section">
+                <h3>Hold Click Upgrades</h3>
+                <ul id="hold-click-upgrades" class="upgrade-list"></ul>
+            </div>
         </div>
 
         <!-- Center Panel -->
@@ -337,6 +398,10 @@
                 </div>
                 <p><span id="monument-progress-text">0%</span> Complete</p>
             </div>
+            <div id="unlockables">
+                <h3>Unlockables</h3>
+                <ul id="unlockables-list"></ul>
+            </div>
         </div>
 
         <!-- Right Panel -->
@@ -344,6 +409,16 @@
             <div class="upgrade-section">
                 <h3>Passive Upgrades</h3>
                 <ul id="passive-upgrades" class="upgrade-list"></ul>
+            </div>
+            <div class="upgrade-section" id="settings-section" style="display: none;">
+                <h3>Settings</h3>
+                <div class="toggle-container">
+                    <span class="toggle-label">Highlight Best Upgrade</span>
+                    <label class="toggle-input">
+                        <input type="checkbox" id="highlight-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -365,8 +440,13 @@
         let prestigeMultiplier = 1;
         let prestigeThreshold = 1000000;
         let purchaseQuantity = 1;
-        let goldenMonumentCost = 10000000000000; // 10 trillion
+        let goldenMonumentCost = 10000000000000;
         let goldenMonumentProgress = 0;
+        let holdClickInterval = 1000;
+        let isHolding = false;
+        let holdInterval;
+        let highlightUnlocked = false;
+        let highlightEnabled = false;
 
         const clickUpgrades = [
             { name: "Faster Fingers", baseCost: 50, quantity: 0, multiplier: 0.2 },
@@ -384,12 +464,22 @@
             { name: "Galactic Bank", baseCost: 1000000, quantity: 0, multiplier: 50 },
         ];
 
+        const holdClickUpgrades = [
+            { name: "Hold Click Accelerator", baseCost: 1000, quantity: 0, multiplier: 50 },
+            { name: "Hold Click Turbo", baseCost: 10000, quantity: 0, multiplier: 25 },
+        ];
+
+        const unlockables = [
+            { name: "Highlight Best Upgrade", requiredPP: 2, unlocked: false },
+        ];
+
         const coinCountElem = document.getElementById('coin-count');
         const ipcDisplayElem = document.getElementById('ipc-display');
         const cpsDisplayElem = document.getElementById('cps-display');
         const clickableCoinElem = document.getElementById('clickable-coin');
         const clickUpgradesListElem = document.getElementById('click-upgrades');
         const passiveUpgradesListElem = document.getElementById('passive-upgrades');
+        const holdClickUpgradesListElem = document.getElementById('hold-click-upgrades');
         const prestigePointsElem = document.getElementById('prestige-points');
         const prestigeMultiplierElem = document.getElementById('prestige-multiplier');
         const prestigeButtonElem = document.getElementById('prestige-button');
@@ -399,6 +489,9 @@
         const monumentProgressTextElem = document.getElementById('monument-progress-text');
         const purchaseQuantityButtons = document.querySelectorAll('.quantity-button');
         const notificationElem = document.getElementById('notification');
+        const unlockablesListElem = document.getElementById('unlockables-list');
+        const highlightToggleElem = document.getElementById('highlight-toggle');
+        const settingsSectionElem = document.getElementById('settings-section');
 
         function saveGame() {
             const saveData = {
@@ -410,8 +503,13 @@
                 prestigeMultiplier,
                 prestigeThreshold,
                 goldenMonumentProgress,
+                holdClickInterval,
+                highlightUnlocked,
+                highlightEnabled,
                 clickUpgrades,
                 passiveUpgrades,
+                holdClickUpgrades,
+                unlockables,
                 timestamp: Date.now(),
             };
             localStorage.setItem('clickQuestSave', JSON.stringify(saveData));
@@ -429,12 +527,21 @@
                 prestigeMultiplier = savedData.prestigeMultiplier;
                 prestigeThreshold = savedData.prestigeThreshold;
                 goldenMonumentProgress = savedData.goldenMonumentProgress;
+                holdClickInterval = savedData.holdClickInterval;
+                highlightUnlocked = savedData.highlightUnlocked;
+                highlightEnabled = savedData.highlightEnabled;
 
                 savedData.clickUpgrades.forEach((upgrade, index) => {
                     clickUpgrades[index].quantity = upgrade.quantity;
                 });
                 savedData.passiveUpgrades.forEach((upgrade, index) => {
                     passiveUpgrades[index].quantity = upgrade.quantity;
+                });
+                savedData.holdClickUpgrades.forEach((upgrade, index) => {
+                    holdClickUpgrades[index].quantity = upgrade.quantity;
+                });
+                savedData.unlockables.forEach((unlockable, index) => {
+                    unlockables[index].unlocked = unlockable.unlocked;
                 });
 
                 const offlineTime = (Date.now() - savedData.timestamp) / 1000;
@@ -470,10 +577,33 @@
             coinsForPrestigeElem.textContent = formatNumber(coins);
             prestigeButtonElem.disabled = coins < prestigeThreshold;
             updateMonumentProgress();
+            updateUnlockables();
             highlightBestUpgrades();
         }
 
+        clickableCoinElem.addEventListener('mousedown', () => {
+            isHolding = true;
+            clickCoin();
+            holdInterval = setInterval(clickCoin, holdClickInterval);
+        });
+
+        clickableCoinElem.addEventListener('mouseup', () => {
+            isHolding = false;
+            clearInterval(holdInterval);
+        });
+
+        clickableCoinElem.addEventListener('mouseleave', () => {
+            if (isHolding) {
+                isHolding = false;
+                clearInterval(holdInterval);
+            }
+        });
+
         clickableCoinElem.addEventListener('click', () => {
+            if (!isHolding) clickCoin();
+        });
+
+        function clickCoin() {
             const coinsGained = ipc;
             coins += coinsGained;
             totalClicks += 1;
@@ -488,7 +618,7 @@
             }, 800);
 
             updateDisplay();
-        });
+        }
 
         purchaseQuantityButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -525,6 +655,23 @@
                 coins -= cost;
                 upgrade.quantity += quantityToBuy;
                 calculateCPS();
+                updateDisplay();
+                renderUpgrades();
+            } else {
+                showNotification('Not enough coins!');
+            }
+        }
+
+        function buyHoldClickUpgrade(index) {
+            const upgrade = holdClickUpgrades[index];
+            let quantityToBuy = getPurchaseQuantity(upgrade);
+            if (quantityToBuy <= 0) return;
+            const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantityToBuy);
+
+            if (coins >= cost) {
+                coins -= cost;
+                upgrade.quantity += quantityToBuy;
+                calculateHoldClickSpeed();
                 updateDisplay();
                 renderUpgrades();
             } else {
@@ -571,6 +718,15 @@
 
         function calculateCPS() {
             cps = passiveUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity * upgrade.multiplier, 0) * prestigeMultiplier;
+        }
+
+        function calculateHoldClickSpeed() {
+            const totalMultiplier = holdClickUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity * upgrade.multiplier, 0);
+            holdClickInterval = 1000 / (1 + totalMultiplier / 100);
+            if (isHolding) {
+                clearInterval(holdInterval);
+                holdInterval = setInterval(clickCoin, holdClickInterval);
+            }
         }
 
         function renderUpgrades() {
@@ -623,9 +779,36 @@
                 upgradeItem.appendChild(upgradeInfo);
                 passiveUpgradesListElem.appendChild(upgradeItem);
             });
+
+            holdClickUpgradesListElem.innerHTML = '';
+            holdClickUpgrades.forEach((upgrade, index) => {
+                const upgradeItem = document.createElement('li');
+                upgradeItem.classList.add('upgrade-item');
+                upgradeItem.addEventListener('click', () => buyHoldClickUpgrade(index));
+
+                const upgradeInfo = document.createElement('div');
+                upgradeInfo.classList.add('upgrade-info');
+
+                const upgradeName = document.createElement('span');
+                upgradeName.classList.add('upgrade-name');
+                upgradeName.textContent = `${upgrade.name} (x${upgrade.quantity})`;
+
+                const upgradeCost = document.createElement('span');
+                upgradeCost.classList.add('upgrade-cost');
+                const quantity = getPurchaseQuantity(upgrade);
+                const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantity);
+                upgradeCost.textContent = `Cost: ${formatNumber(cost)}`;
+
+                upgradeInfo.appendChild(upgradeName);
+                upgradeInfo.appendChild(upgradeCost);
+                upgradeItem.appendChild(upgradeInfo);
+                holdClickUpgradesListElem.appendChild(upgradeItem);
+            });
         }
 
         function highlightBestUpgrades() {
+            if (!highlightEnabled) return;
+
             let bestClickUpgradeIndex = -1;
             let bestClickValue = 0;
             clickUpgrades.forEach((upgrade, index) => {
@@ -669,14 +852,18 @@
             cps = 0;
             totalClicks = 0;
             prestigeThreshold *= 10;
+            holdClickInterval = 1000;
 
             clickUpgrades.forEach(upgrade => upgrade.quantity = 0);
             passiveUpgrades.forEach(upgrade => upgrade.quantity = 0);
+            holdClickUpgrades.forEach(upgrade => upgrade.quantity = 0);
 
             calculateIPC();
             calculateCPS();
+            calculateHoldClickSpeed();
             updateDisplay();
             renderUpgrades();
+            checkUnlockables();
             showNotification(`You have prestiged! Your new prestige multiplier is x${prestigeMultiplier}.`);
         }
 
@@ -698,6 +885,34 @@
                 notificationElem.style.animation = '';
             }, 10);
         }
+
+        function checkUnlockables() {
+            unlockables.forEach(unlockable => {
+                if (!unlockable.unlocked && prestigePoints >= unlockable.requiredPP) {
+                    unlockable.unlocked = true;
+                    showNotification(`Unlocked: ${unlockable.name}`);
+                    if (unlockable.name === "Highlight Best Upgrade") {
+                        highlightUnlocked = true;
+                        settingsSectionElem.style.display = 'block';
+                    }
+                }
+            });
+            updateUnlockables();
+        }
+
+        function updateUnlockables() {
+            unlockablesListElem.innerHTML = '';
+            unlockables.forEach(unlockable => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${unlockable.name} - ${unlockable.unlocked ? 'Unlocked' : 'Requires ' + unlockable.requiredPP + ' Prestige Points'}`;
+                unlockablesListElem.appendChild(listItem);
+            });
+        }
+
+        highlightToggleElem.addEventListener('change', () => {
+            highlightEnabled = highlightToggleElem.checked;
+            highlightBestUpgrades();
+        });
 
         setInterval(() => {
             coins += cps / 10;
@@ -731,8 +946,10 @@
             loadGame();
             calculateIPC();
             calculateCPS();
+            calculateHoldClickSpeed();
             updateDisplay();
             renderUpgrades();
+            checkUnlockables();
         }
 
         init();
