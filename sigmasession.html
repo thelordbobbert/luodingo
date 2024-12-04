@@ -390,9 +390,9 @@
         let totalClicks = 0;
         let prestigePoints = 0;
         let prestigeMultiplier = 1;
-        let prestigeThreshold = 100000;
+        let prestigeThreshold = 10000;
         let purchaseQuantity = 1;
-        let goldenMonumentCost = 10000000000000;
+        let goldenMonumentCost = 1e12;
         let goldenMonumentProgress = 0;
         let holdClickInterval = 1000;
         let isHolding = false;
@@ -404,80 +404,80 @@
         const clickUpgrades = [
             {
                 name: "Faster Fingers",
-                baseCost: 50,
-                quantity: 0,
-                multiplier: 0.5,
-                description: "Increases IPC by 0.5 per upgrade."
-            },
-            {
-                name: "Titanium Clicker",
-                baseCost: 500,
+                baseCost: 10,
                 quantity: 0,
                 multiplier: 1,
                 description: "Increases IPC by 1 per upgrade."
             },
             {
-                name: "Quantum Tap",
-                baseCost: 5000,
+                name: "Titanium Clicker",
+                baseCost: 100,
                 quantity: 0,
                 multiplier: 5,
                 description: "Increases IPC by 5 per upgrade."
             },
             {
-                name: "Dimensional Press",
-                baseCost: 50000,
+                name: "Quantum Tap",
+                baseCost: 1000,
                 quantity: 0,
-                multiplier: 20,
-                description: "Increases IPC by 20 per upgrade."
+                multiplier: 25,
+                description: "Increases IPC by 25 per upgrade."
+            },
+            {
+                name: "Dimensional Press",
+                baseCost: 10000,
+                quantity: 0,
+                multiplier: 125,
+                description: "Increases IPC by 125 per upgrade."
             },
             {
                 name: "Infinity Glove",
-                baseCost: 500000,
+                baseCost: 100000,
                 quantity: 0,
-                multiplier: 100,
-                description: "Increases IPC by 100 per upgrade."
+                multiplier: 625,
+                description: "Increases IPC by 625 per upgrade."
             },
         ];
         const passiveUpgrades = [
             {
                 name: "Coin Generator",
-                baseCost: 25,
+                baseCost: 15,
                 quantity: 0,
-                multiplier: 1,
-                description: "Increases CPS by 1 per upgrade."
+                multiplier: 2,
+                description: "Increases CPS by 2 per upgrade."
             },
             {
                 name: "Automated Mint",
-                baseCost: 250,
+                baseCost: 150,
                 quantity: 0,
-                multiplier: 5,
-                description: "Increases CPS by 5 per upgrade."
+                multiplier: 10,
+                description: "Increases CPS by 10 per upgrade."
             },
             {
                 name: "Time Dilation Device",
-                baseCost: 2500,
+                baseCost: 1500,
                 quantity: 0,
-                multiplier: 25,
-                description: "Increases CPS by 25 per upgrade."
+                multiplier: 50,
+                description: "Increases CPS by 50 per upgrade."
             },
             {
                 name: "Eternal Vault",
-                baseCost: 25000,
+                baseCost: 15000,
                 quantity: 0,
-                multiplier: 125,
-                description: "Increases CPS by 125 per upgrade."
+                multiplier: 250,
+                description: "Increases CPS by 250 per upgrade."
             },
             {
                 name: "Galactic Bank",
-                baseCost: 250000,
+                baseCost: 150000,
                 quantity: 0,
-                multiplier: 625,
-                description: "Increases CPS by 625 per upgrade."
+                multiplier: 1250,
+                description: "Increases CPS by 1250 per upgrade."
             },
         ];
         const holdClickUpgrade = {
             name: "Hold Click Ability",
-            baseCost: 5000,
+            baseCost: 1000,
             quantity: 0,
             multiplier: 0.2,
             description: "Increases hold-click speed by 20% per upgrade.",
@@ -510,21 +510,44 @@
         const holdClickUpgradeSectionElem = document.getElementById('hold-click-upgrade-section');
         function saveGame() {
             const saveData = {
-                coins,
-                ipc,
-                cps,
-                totalClicks,
-                prestigePoints,
-                prestigeMultiplier,
-                prestigeThreshold,
-                goldenMonumentProgress,
-                holdClickInterval,
-                holdClickUpgrade,
-                highlightUnlocked,
-                highlightEnabled,
-                clickUpgrades,
-                passiveUpgrades,
-                unlockables,
+                coins: coins,
+                ipc: ipc,
+                cps: cps,
+                totalClicks: totalClicks,
+                prestigePoints: prestigePoints,
+                prestigeMultiplier: prestigeMultiplier,
+                prestigeThreshold: prestigeThreshold,
+                goldenMonumentProgress: goldenMonumentProgress,
+                holdClickInterval: holdClickInterval,
+                holdClickUpgrade: {
+                    name: holdClickUpgrade.name,
+                    baseCost: holdClickUpgrade.baseCost,
+                    quantity: holdClickUpgrade.quantity,
+                    multiplier: holdClickUpgrade.multiplier,
+                    description: holdClickUpgrade.description,
+                    unlocked: holdClickUpgrade.unlocked,
+                },
+                highlightUnlocked: highlightUnlocked,
+                highlightEnabled: highlightEnabled,
+                clickUpgrades: clickUpgrades.map(upgrade => ({
+                    name: upgrade.name,
+                    baseCost: upgrade.baseCost,
+                    quantity: upgrade.quantity,
+                    multiplier: upgrade.multiplier,
+                    description: upgrade.description,
+                })),
+                passiveUpgrades: passiveUpgrades.map(upgrade => ({
+                    name: upgrade.name,
+                    baseCost: upgrade.baseCost,
+                    quantity: upgrade.quantity,
+                    multiplier: upgrade.multiplier,
+                    description: upgrade.description,
+                })),
+                unlockables: unlockables.map(unlockable => ({
+                    name: unlockable.name,
+                    requiredPP: unlockable.requiredPP,
+                    unlocked: unlockable.unlocked,
+                })),
                 timestamp: Date.now(),
             };
             localStorage.setItem('clickQuestSave', JSON.stringify(saveData));
@@ -534,27 +557,36 @@
             const savedDataString = localStorage.getItem('clickQuestSave');
             if (savedDataString) {
                 const savedData = JSON.parse(savedDataString);
-                coins = savedData.coins;
-                ipc = savedData.ipc;
-                cps = savedData.cps;
-                totalClicks = savedData.totalClicks;
-                prestigePoints = savedData.prestigePoints;
-                prestigeMultiplier = savedData.prestigeMultiplier;
-                prestigeThreshold = savedData.prestigeThreshold;
-                goldenMonumentProgress = savedData.goldenMonumentProgress;
-                holdClickInterval = savedData.holdClickInterval;
+                coins = savedData.coins || 0;
+                ipc = savedData.ipc || 1;
+                cps = savedData.cps || 0;
+                totalClicks = savedData.totalClicks || 0;
+                prestigePoints = savedData.prestigePoints || 0;
+                prestigeMultiplier = savedData.prestigeMultiplier || 1;
+                prestigeThreshold = savedData.prestigeThreshold || 10000;
+                goldenMonumentProgress = savedData.goldenMonumentProgress || 0;
+                holdClickInterval = savedData.holdClickInterval || 1000;
                 holdClickUpgrade.quantity = savedData.holdClickUpgrade.quantity || 0;
                 holdClickUpgrade.unlocked = savedData.holdClickUpgrade.unlocked || false;
-                highlightUnlocked = savedData.highlightUnlocked;
-                highlightEnabled = savedData.highlightEnabled;
-                savedData.clickUpgrades.forEach((upgrade, index) => {
-                    clickUpgrades[index].quantity = upgrade.quantity;
+                highlightUnlocked = savedData.highlightUnlocked || false;
+                highlightEnabled = savedData.highlightEnabled || false;
+                clickUpgrades.forEach((upgrade, index) => {
+                    const savedUpgrade = savedData.clickUpgrades[index];
+                    if (savedUpgrade) {
+                        upgrade.quantity = savedUpgrade.quantity || 0;
+                    }
                 });
-                savedData.passiveUpgrades.forEach((upgrade, index) => {
-                    passiveUpgrades[index].quantity = upgrade.quantity;
+                passiveUpgrades.forEach((upgrade, index) => {
+                    const savedUpgrade = savedData.passiveUpgrades[index];
+                    if (savedUpgrade) {
+                        upgrade.quantity = savedUpgrade.quantity || 0;
+                    }
                 });
-                savedData.unlockables.forEach((unlockable, index) => {
-                    unlockables[index].unlocked = unlockable.unlocked;
+                unlockables.forEach((unlockable, index) => {
+                    const savedUnlockable = savedData.unlockables[index];
+                    if (savedUnlockable) {
+                        unlockable.unlocked = savedUnlockable.unlocked || false;
+                    }
                 });
                 const offlineTime = (Date.now() - savedData.timestamp) / 1000;
                 const offlineEarnings = cps * offlineTime;
@@ -581,7 +613,7 @@
             ipcDisplayElem.textContent = formatNumber(ipc);
             cpsDisplayElem.textContent = formatNumber(cps);
             prestigePointsElem.textContent = prestigePoints;
-            prestigeMultiplierElem.textContent = prestigeMultiplier;
+            prestigeMultiplierElem.textContent = prestigeMultiplier.toFixed(2);
             prestigeThresholdElem.textContent = formatNumber(prestigeThreshold);
             coinsForPrestigeElem.textContent = formatNumber(coins);
             prestigeButtonElem.disabled = coins < prestigeThreshold;
@@ -592,6 +624,12 @@
                 holdClickUpgradeSectionElem.style.display = 'block';
             } else {
                 holdClickUpgradeSectionElem.style.display = 'none';
+            }
+            highlightToggleElem.checked = highlightEnabled;
+            if (highlightUnlocked) {
+                settingsSectionElem.style.display = 'block';
+            } else {
+                settingsSectionElem.style.display = 'none';
             }
         }
         function canHoldClick() {
@@ -695,7 +733,7 @@
         }
         function calculateTotalCost(baseCost, currentQuantity, quantityToBuy, isHoldClick = false) {
             let totalCost = 0;
-            let costMultiplier = isHoldClick ? 1.5 : 1.15;
+            let costMultiplier = isHoldClick ? 1.15 : 1.1;
             for (let i = 0; i < quantityToBuy; i++) {
                 totalCost += baseCost * Math.pow(costMultiplier, currentQuantity + i);
             }
@@ -706,7 +744,7 @@
             let totalCost = 0;
             let currentQuantity = upgrade.quantity;
             let maxLevel = isHoldClick ? maxHoldClickLevel : Infinity;
-            let costMultiplier = isHoldClick ? 1.5 : 1.15;
+            let costMultiplier = isHoldClick ? 1.15 : 1.1;
             while (true) {
                 if (currentQuantity >= maxLevel) break;
                 let cost = upgrade.baseCost * Math.pow(costMultiplier, currentQuantity);
@@ -815,7 +853,7 @@
             let bestClickUpgradeIndex = -1;
             let bestClickValue = 0;
             clickUpgrades.forEach((upgrade, index) => {
-                const cost = upgrade.baseCost * Math.pow(1.15, upgrade.quantity);
+                const cost = upgrade.baseCost * Math.pow(1.1, upgrade.quantity);
                 const value = (upgrade.multiplier * prestigeMultiplier) / cost;
                 if (value > bestClickValue) {
                     bestClickValue = value;
@@ -825,7 +863,7 @@
             let bestPassiveUpgradeIndex = -1;
             let bestPassiveValue = 0;
             passiveUpgrades.forEach((upgrade, index) => {
-                const cost = upgrade.baseCost * Math.pow(1.15, upgrade.quantity);
+                const cost = upgrade.baseCost * Math.pow(1.1, upgrade.quantity);
                 const value = (upgrade.multiplier * prestigeMultiplier) / cost;
                 if (value > bestPassiveValue) {
                     bestPassiveValue = value;
@@ -844,7 +882,7 @@
         });
         function prestige() {
             prestigePoints += 1;
-            prestigeMultiplier = 1 + prestigePoints * 0.1;
+            prestigeMultiplier = 1 + prestigePoints * 0.5;
             coins = 0;
             ipc = 1;
             cps = 0;
