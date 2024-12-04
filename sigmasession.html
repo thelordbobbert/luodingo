@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Dragon's Hoard</title>
     <style>
+        /* General styles */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -32,7 +33,6 @@
         #main-content {
             flex: 1;
             display: flex;
-            flex-direction: column;
             overflow: hidden;
         }
         #panels-container {
@@ -47,8 +47,7 @@
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            overflow-y: auto;
         }
         #center-panel {
             flex: 1;
@@ -58,7 +57,7 @@
             background-color: #2b2b2b;
             position: relative;
             padding: 10px;
-            justify-content: center;
+            overflow-y: auto;
         }
         #gold-display {
             margin-bottom: 10px;
@@ -124,24 +123,22 @@
         }
         .upgrade-list {
             list-style: none;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
             padding: 0;
             margin: 0;
             width: 100%;
         }
         .upgrade-item {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: space-between;
             padding: 5px;
             background-color: #4b4b4b;
-            margin: 5px;
+            margin-bottom: 5px;
             cursor: pointer;
             border: 1px solid transparent;
             border-radius: 5px;
-            width: 45%;
+            position: relative;
         }
         .upgrade-item:hover {
             border-color: #6e6e6e;
@@ -153,12 +150,11 @@
         .upgrade-info {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            width: 100%;
         }
         .upgrade-name {
             font-size: 14px;
             font-weight: bold;
-            text-align: center;
         }
         .upgrade-cost {
             font-size: 12px;
@@ -347,9 +343,6 @@
             #gold-display h2 {
                 font-size: 18px;
             }
-            .upgrade-item {
-                width: 90%;
-            }
         }
     </style>
 </head>
@@ -363,6 +356,12 @@
     <div id="main-content">
         <div id="panels-container">
             <div id="left-panel">
+                <div id="purchase-quantity-left" class="purchase-quantity">
+                    <button class="quantity-button active" data-quantity="1">x1</button>
+                    <button class="quantity-button" data-quantity="10">x10</button>
+                    <button class="quantity-button" data-quantity="100">x100</button>
+                    <button class="quantity-button" data-quantity="max">Max</button>
+                </div>
                 <div class="upgrade-section">
                     <h3>Dragon Upgrades</h3>
                     <ul id="dragon-upgrades" class="upgrade-list"></ul>
@@ -375,12 +374,6 @@
                     <p>Gold Per Second (GPS): <span id="gps-display">0</span></p>
                 </div>
                 <div id="clickable-coin"></div>
-                <div id="purchase-quantity">
-                    <button class="quantity-button active" data-quantity="1">x1</button>
-                    <button class="quantity-button" data-quantity="10">x10</button>
-                    <button class="quantity-button" data-quantity="100">x100</button>
-                    <button class="quantity-button" data-quantity="max">Max</button>
-                </div>
                 <div id="prestige-section">
                     <h3>Prestige Progress</h3>
                     <p>Gold: <span id="gold-for-prestige">0</span> / <span id="prestige-threshold">100,000</span></p>
@@ -399,6 +392,12 @@
                 </div>
             </div>
             <div id="right-panel">
+                <div id="purchase-quantity-right" class="purchase-quantity">
+                    <button class="quantity-button active" data-quantity="1">x1</button>
+                    <button class="quantity-button" data-quantity="10">x10</button>
+                    <button class="quantity-button" data-quantity="100">x100</button>
+                    <button class="quantity-button" data-quantity="max">Max</button>
+                </div>
                 <div class="upgrade-section">
                     <h3>Minion Upgrades</h3>
                     <ul id="minion-upgrades" class="upgrade-list"></ul>
@@ -456,7 +455,8 @@
         const prestigeButtonElem = document.getElementById('prestige-button');
         const prestigeThresholdElem = document.getElementById('prestige-threshold');
         const goldForPrestigeElem = document.getElementById('gold-for-prestige');
-        const purchaseQuantityButtons = document.querySelectorAll('.quantity-button');
+        const purchaseQuantityButtonsLeft = document.querySelectorAll('#purchase-quantity-left .quantity-button');
+        const purchaseQuantityButtonsRight = document.querySelectorAll('#purchase-quantity-right .quantity-button');
         const notificationElem = document.getElementById('notification');
         const unlockablesListElem = document.getElementById('unlockables-list');
         const highlightToggleElem = document.getElementById('highlight-toggle');
@@ -665,13 +665,18 @@
                 holdInterval = setInterval(clickCoin, fireBreathInterval);
             }
         }
-        purchaseQuantityButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                purchaseQuantityButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                purchaseQuantity = button.getAttribute('data-quantity');
+        function setupPurchaseQuantityButtons() {
+            const allButtons = [...purchaseQuantityButtonsLeft, ...purchaseQuantityButtonsRight];
+            allButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    allButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    purchaseQuantity = button.getAttribute('data-quantity');
+                    renderUpgrades();
+                });
             });
-        });
+        }
+        setupPurchaseQuantityButtons();
         function buyDragonUpgrade(index) {
             const upgrade = dragonUpgrades[index];
             const quantityToBuy = getPurchaseQuantity(upgrade);
@@ -835,7 +840,9 @@
             let bestDragonValue = 0;
             dragonUpgrades.forEach((upgrade, index) => {
                 const cost = upgrade.baseCost * Math.pow(1.1, upgrade.quantity);
-                const value = (upgrade.multiplier * prestigeMultiplier) / cost;
+                const quantity = getPurchaseQuantity(upgrade);
+                const totalCost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantity);
+                const value = (upgrade.multiplier * prestigeMultiplier * quantity) / totalCost;
                 if (value > bestDragonValue) {
                     bestDragonValue = value;
                     bestDragonUpgradeIndex = index;
@@ -845,7 +852,9 @@
             let bestMinionValue = 0;
             minionUpgrades.forEach((upgrade, index) => {
                 const cost = upgrade.baseCost * Math.pow(1.1, upgrade.quantity);
-                const value = (upgrade.multiplier * prestigeMultiplier) / cost;
+                const quantity = getPurchaseQuantity(upgrade);
+                const totalCost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantity);
+                const value = (upgrade.multiplier * prestigeMultiplier * quantity) / totalCost;
                 if (value > bestMinionValue) {
                     bestMinionValue = value;
                     bestMinionUpgradeIndex = index;
