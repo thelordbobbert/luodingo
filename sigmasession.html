@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Click Quest</title>
     <style>
+        /* Basic Styles */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -63,6 +64,7 @@
             font-size: 24px;
         }
 
+        /* Clickable Coin */
         #clickable-coin {
             width: 200px;
             height: 200px;
@@ -86,6 +88,7 @@
             transform: scale(0.95);
         }
 
+        /* Floating Text Effect */
         .floating-text {
             position: absolute;
             animation: float-up 0.8s ease-out forwards;
@@ -110,6 +113,7 @@
             }
         }
 
+        /* Upgrade Panels */
         .upgrade-section {
             margin-bottom: 20px;
         }
@@ -133,6 +137,7 @@
             cursor: pointer;
             border: 1px solid transparent;
             border-radius: 5px;
+            position: relative;
         }
 
         .upgrade-item:hover {
@@ -159,6 +164,29 @@
             color: #ccc;
         }
 
+        /* Tooltip Styles */
+        .tooltip {
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+
+        .upgrade-item:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Purchase Quantity Buttons */
         #purchase-quantity {
             display: flex;
             justify-content: center;
@@ -180,6 +208,7 @@
             color: #000;
         }
 
+        /* Prestige Section */
         #prestige-section {
             margin-top: 20px;
             text-align: center;
@@ -202,6 +231,7 @@
             cursor: not-allowed;
         }
 
+        /* Golden Monument Section */
         #golden-monument {
             margin-top: 20px;
             text-align: center;
@@ -223,6 +253,7 @@
             width: 0%;
         }
 
+        /* Footer */
         #footer {
             display: flex;
             justify-content: center;
@@ -239,6 +270,7 @@
             border-radius: 5px;
         }
 
+        /* Notification System */
         #notification {
             position: fixed;
             top: 20px;
@@ -269,6 +301,7 @@
             }
         }
 
+        /* Settings Toggle */
         .toggle-container {
             display: flex;
             align-items: center;
@@ -324,14 +357,10 @@
             transform: translateX(18px);
         }
 
+        /* Unlockables Section */
         #unlockables {
             margin-top: 20px;
             text-align: center;
-        }
-
-        #unlockables-list {
-            list-style: none;
-            padding: 0;
         }
 
         /* Responsive Design */
@@ -449,24 +478,96 @@
         let highlightEnabled = false;
 
         const clickUpgrades = [
-            { name: "Faster Fingers", baseCost: 50, quantity: 0, multiplier: 0.2 },
-            { name: "Titanium Clicker", baseCost: 500, quantity: 0, multiplier: 1 },
-            { name: "Quantum Tap", baseCost: 5000, quantity: 0, multiplier: 5 },
-            { name: "Dimensional Press", baseCost: 50000, quantity: 0, multiplier: 20 },
-            { name: "Infinity Glove", baseCost: 500000, quantity: 0, multiplier: 100 },
+            {
+                name: "Faster Fingers",
+                baseCost: 50,
+                quantity: 0,
+                multiplier: 0.2,
+                description: "Increases IPC by 0.2 per upgrade."
+            },
+            {
+                name: "Titanium Clicker",
+                baseCost: 500,
+                quantity: 0,
+                multiplier: 1,
+                description: "Increases IPC by 1 per upgrade."
+            },
+            {
+                name: "Quantum Tap",
+                baseCost: 5000,
+                quantity: 0,
+                multiplier: 5,
+                description: "Increases IPC by 5 per upgrade."
+            },
+            {
+                name: "Dimensional Press",
+                baseCost: 50000,
+                quantity: 0,
+                multiplier: 20,
+                description: "Increases IPC by 20 per upgrade."
+            },
+            {
+                name: "Infinity Glove",
+                baseCost: 500000,
+                quantity: 0,
+                multiplier: 100,
+                description: "Increases IPC by 100 per upgrade."
+            },
         ];
 
         const passiveUpgrades = [
-            { name: "Coin Generator", baseCost: 100, quantity: 0, multiplier: 0.1 },
-            { name: "Automated Mint", baseCost: 1000, quantity: 0, multiplier: 0.5 },
-            { name: "Time Dilation Device", baseCost: 10000, quantity: 0, multiplier: 2 },
-            { name: "Eternal Vault", baseCost: 100000, quantity: 0, multiplier: 10 },
-            { name: "Galactic Bank", baseCost: 1000000, quantity: 0, multiplier: 50 },
+            {
+                name: "Coin Generator",
+                baseCost: 100,
+                quantity: 0,
+                multiplier: 0.1,
+                description: "Increases CPS by 0.1 per upgrade."
+            },
+            {
+                name: "Automated Mint",
+                baseCost: 1000,
+                quantity: 0,
+                multiplier: 0.5,
+                description: "Increases CPS by 0.5 per upgrade."
+            },
+            {
+                name: "Time Dilation Device",
+                baseCost: 10000,
+                quantity: 0,
+                multiplier: 2,
+                description: "Increases CPS by 2 per upgrade."
+            },
+            {
+                name: "Eternal Vault",
+                baseCost: 100000,
+                quantity: 0,
+                multiplier: 10,
+                description: "Increases CPS by 10 per upgrade."
+            },
+            {
+                name: "Galactic Bank",
+                baseCost: 1000000,
+                quantity: 0,
+                multiplier: 50,
+                description: "Increases CPS by 50 per upgrade."
+            },
         ];
 
         const holdClickUpgrades = [
-            { name: "Hold Click Accelerator", baseCost: 1000, quantity: 0, multiplier: 50 },
-            { name: "Hold Click Turbo", baseCost: 10000, quantity: 0, multiplier: 25 },
+            {
+                name: "Hold Click Accelerator",
+                baseCost: 1000,
+                quantity: 0,
+                multiplier: 50,
+                description: "Increases hold-click speed by 50% per upgrade."
+            },
+            {
+                name: "Hold Click Turbo",
+                baseCost: 10000,
+                quantity: 0,
+                multiplier: 25,
+                description: "Increases hold-click speed by 25% per upgrade."
+            },
         ];
 
         const unlockables = [
@@ -599,9 +700,7 @@
             }
         });
 
-        clickableCoinElem.addEventListener('click', () => {
-            if (!isHolding) clickCoin();
-        });
+        // Removed the 'click' event listener to fix double coin issue
 
         function clickCoin() {
             const coinsGained = ipc;
@@ -749,9 +848,15 @@
                 const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantity);
                 upgradeCost.textContent = `Cost: ${formatNumber(cost)}`;
 
+                // Tooltip
+                const tooltip = document.createElement('div');
+                tooltip.classList.add('tooltip');
+                tooltip.textContent = upgrade.description;
+
                 upgradeInfo.appendChild(upgradeName);
                 upgradeInfo.appendChild(upgradeCost);
                 upgradeItem.appendChild(upgradeInfo);
+                upgradeItem.appendChild(tooltip);
                 clickUpgradesListElem.appendChild(upgradeItem);
             });
 
@@ -774,9 +879,15 @@
                 const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantity);
                 upgradeCost.textContent = `Cost: ${formatNumber(cost)}`;
 
+                // Tooltip
+                const tooltip = document.createElement('div');
+                tooltip.classList.add('tooltip');
+                tooltip.textContent = upgrade.description;
+
                 upgradeInfo.appendChild(upgradeName);
                 upgradeInfo.appendChild(upgradeCost);
                 upgradeItem.appendChild(upgradeInfo);
+                upgradeItem.appendChild(tooltip);
                 passiveUpgradesListElem.appendChild(upgradeItem);
             });
 
@@ -799,9 +910,15 @@
                 const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantity);
                 upgradeCost.textContent = `Cost: ${formatNumber(cost)}`;
 
+                // Tooltip
+                const tooltip = document.createElement('div');
+                tooltip.classList.add('tooltip');
+                tooltip.textContent = upgrade.description;
+
                 upgradeInfo.appendChild(upgradeName);
                 upgradeInfo.appendChild(upgradeCost);
                 upgradeItem.appendChild(upgradeInfo);
+                upgradeItem.appendChild(tooltip);
                 holdClickUpgradesListElem.appendChild(upgradeItem);
             });
         }
