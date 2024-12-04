@@ -400,87 +400,87 @@
         let highlightUnlocked = false;
         let highlightEnabled = false;
         let holdClickUnlocked = false;
-        const maxHoldClickLevel = 20;
+        const maxHoldClickLevel = 50;
         const clickUpgrades = [
             {
                 name: "Faster Fingers",
-                baseCost: 25,
+                baseCost: 50,
                 quantity: 0,
                 multiplier: 0.5,
                 description: "Increases IPC by 0.5 per upgrade."
             },
             {
                 name: "Titanium Clicker",
-                baseCost: 250,
+                baseCost: 500,
                 quantity: 0,
-                multiplier: 2,
-                description: "Increases IPC by 2 per upgrade."
+                multiplier: 1,
+                description: "Increases IPC by 1 per upgrade."
             },
             {
                 name: "Quantum Tap",
-                baseCost: 2500,
+                baseCost: 5000,
                 quantity: 0,
-                multiplier: 10,
-                description: "Increases IPC by 10 per upgrade."
+                multiplier: 5,
+                description: "Increases IPC by 5 per upgrade."
             },
             {
                 name: "Dimensional Press",
-                baseCost: 25000,
+                baseCost: 50000,
                 quantity: 0,
-                multiplier: 50,
-                description: "Increases IPC by 50 per upgrade."
+                multiplier: 20,
+                description: "Increases IPC by 20 per upgrade."
             },
             {
                 name: "Infinity Glove",
-                baseCost: 250000,
+                baseCost: 500000,
                 quantity: 0,
-                multiplier: 250,
-                description: "Increases IPC by 250 per upgrade."
+                multiplier: 100,
+                description: "Increases IPC by 100 per upgrade."
             },
         ];
         const passiveUpgrades = [
             {
                 name: "Coin Generator",
-                baseCost: 50,
+                baseCost: 25,
                 quantity: 0,
-                multiplier: 0.5,
-                description: "Increases CPS by 0.5 per upgrade."
+                multiplier: 1,
+                description: "Increases CPS by 1 per upgrade."
             },
             {
                 name: "Automated Mint",
-                baseCost: 500,
+                baseCost: 250,
                 quantity: 0,
-                multiplier: 2,
-                description: "Increases CPS by 2 per upgrade."
+                multiplier: 5,
+                description: "Increases CPS by 5 per upgrade."
             },
             {
                 name: "Time Dilation Device",
-                baseCost: 5000,
+                baseCost: 2500,
                 quantity: 0,
-                multiplier: 10,
-                description: "Increases CPS by 10 per upgrade."
+                multiplier: 25,
+                description: "Increases CPS by 25 per upgrade."
             },
             {
                 name: "Eternal Vault",
-                baseCost: 50000,
+                baseCost: 25000,
                 quantity: 0,
-                multiplier: 50,
-                description: "Increases CPS by 50 per upgrade."
+                multiplier: 125,
+                description: "Increases CPS by 125 per upgrade."
             },
             {
                 name: "Galactic Bank",
-                baseCost: 500000,
+                baseCost: 250000,
                 quantity: 0,
-                multiplier: 250,
-                description: "Increases CPS by 250 per upgrade."
+                multiplier: 625,
+                description: "Increases CPS by 625 per upgrade."
             },
         ];
         const holdClickUpgrade = {
             name: "Hold Click Ability",
             baseCost: 5000,
             quantity: 0,
-            multiplier: 0.5,
-            description: "Increases hold-click speed by 50% per upgrade.",
+            multiplier: 0.2,
+            description: "Increases hold-click speed by 20% per upgrade.",
             unlocked: false,
         };
         const unlockables = [
@@ -695,12 +695,9 @@
         }
         function calculateTotalCost(baseCost, currentQuantity, quantityToBuy, isHoldClick = false) {
             let totalCost = 0;
+            let costMultiplier = isHoldClick ? 1.5 : 1.15;
             for (let i = 0; i < quantityToBuy; i++) {
-                if (isHoldClick) {
-                    totalCost += baseCost * Math.pow(2, currentQuantity + i);
-                } else {
-                    totalCost += baseCost * Math.pow(1.2, currentQuantity + i);
-                }
+                totalCost += baseCost * Math.pow(costMultiplier, currentQuantity + i);
             }
             return totalCost;
         }
@@ -709,14 +706,10 @@
             let totalCost = 0;
             let currentQuantity = upgrade.quantity;
             let maxLevel = isHoldClick ? maxHoldClickLevel : Infinity;
+            let costMultiplier = isHoldClick ? 1.5 : 1.15;
             while (true) {
                 if (currentQuantity >= maxLevel) break;
-                let cost;
-                if (isHoldClick) {
-                    cost = upgrade.baseCost * Math.pow(2, currentQuantity);
-                } else {
-                    cost = upgrade.baseCost * Math.pow(1.2, currentQuantity);
-                }
+                let cost = upgrade.baseCost * Math.pow(costMultiplier, currentQuantity);
                 if (coins >= totalCost + cost) {
                     totalCost += cost;
                     currentQuantity += 1;
@@ -736,7 +729,7 @@
         function calculateHoldClickSpeed() {
             const totalMultiplier = holdClickUpgrade.quantity * holdClickUpgrade.multiplier;
             holdClickInterval = 1000 / (1 + totalMultiplier);
-            if (holdClickInterval < 100) holdClickInterval = 100;
+            if (holdClickInterval < 50) holdClickInterval = 50;
             if (isHolding) {
                 clearInterval(holdInterval);
                 holdInterval = setInterval(clickCoin, holdClickInterval);
@@ -822,7 +815,7 @@
             let bestClickUpgradeIndex = -1;
             let bestClickValue = 0;
             clickUpgrades.forEach((upgrade, index) => {
-                const cost = upgrade.baseCost * Math.pow(1.2, upgrade.quantity);
+                const cost = upgrade.baseCost * Math.pow(1.15, upgrade.quantity);
                 const value = (upgrade.multiplier * prestigeMultiplier) / cost;
                 if (value > bestClickValue) {
                     bestClickValue = value;
@@ -832,7 +825,7 @@
             let bestPassiveUpgradeIndex = -1;
             let bestPassiveValue = 0;
             passiveUpgrades.forEach((upgrade, index) => {
-                const cost = upgrade.baseCost * Math.pow(1.2, upgrade.quantity);
+                const cost = upgrade.baseCost * Math.pow(1.15, upgrade.quantity);
                 const value = (upgrade.multiplier * prestigeMultiplier) / cost;
                 if (value > bestPassiveValue) {
                     bestPassiveValue = value;
@@ -851,7 +844,7 @@
         });
         function prestige() {
             prestigePoints += 1;
-            prestigeMultiplier = 1 + prestigePoints * 0.5;
+            prestigeMultiplier = 1 + prestigePoints * 0.1;
             coins = 0;
             ipc = 1;
             cps = 0;
@@ -865,7 +858,7 @@
             updateDisplay();
             renderUpgrades();
             checkUnlockables();
-            showNotification(`You have prestiged! Your new prestige multiplier is x${prestigeMultiplier}.`);
+            showNotification(`You have prestiged! Your new prestige multiplier is x${prestigeMultiplier.toFixed(2)}.`);
         }
         function updateMonumentProgress() {
             const progress = Math.min((coins / goldenMonumentCost) * 100, 100);
