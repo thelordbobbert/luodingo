@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Click Quest Expanded</title>
+    <title>Dragon's Hoard</title>
     <style>
         * {
             box-sizing: border-box;
@@ -10,22 +10,24 @@
             padding: 0;
         }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #1e1e1e;
-            color: #f1f1f1;
+            font-family: 'Cinzel', serif;
+            background-color: #2b2b2b;
+            color: #f5f5f5;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             overflow: hidden;
         }
         #header, #footer {
-            background-color: #333;
+            background-color: #1f1f1f;
             padding: 10px;
             text-align: center;
         }
         #header h1 {
-            font-size: 24px;
+            font-size: 28px;
             margin-bottom: 5px;
+            color: #d4af37;
+            text-shadow: 0 0 5px #d4af37;
         }
         #main-content {
             flex: 1;
@@ -39,29 +41,33 @@
             overflow: hidden;
         }
         #left-panel, #right-panel {
-            width: 200px;
-            background-color: #2e2e2e;
-            overflow-y: auto;
+            width: 20%;
+            background-color: #3b3b3b;
             padding: 10px;
             flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         #center-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            background-color: #1e1e1e;
+            background-color: #2b2b2b;
             position: relative;
-            overflow-y: auto;
             padding: 10px;
         }
-        #coin-display {
+        #gold-display {
             margin-bottom: 10px;
             text-align: center;
         }
-        #coin-display h2 {
-            font-size: 20px;
+        #gold-display h2 {
+            font-size: 22px;
+            color: #ffd700;
+        }
+        #gold-display p {
+            font-size: 14px;
         }
         #clickable-coin {
             width: 150px;
@@ -71,18 +77,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
-            color: #000;
             cursor: pointer;
             position: relative;
-            box-shadow: 0 0 10px #ffd700;
             margin-bottom: 10px;
-            transition: transform 0.1s;
             user-select: none;
+            box-shadow: 0 0 10px #ffd700;
+            transition: transform 0.1s;
         }
         #clickable-coin:active {
-            box-shadow: 0 0 20px #ffd700;
             transform: scale(0.95);
+            box-shadow: 0 0 20px #ffd700;
         }
         .floating-text {
             position: absolute;
@@ -93,35 +97,42 @@
             font-weight: bold;
             left: 50%;
             top: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -100%);
             text-shadow: 0 0 5px #000;
         }
         @keyframes float-up {
             0% {
                 opacity: 1;
-                transform: translate(-50%, -50%) translateY(0);
+                transform: translate(-50%, -100%) translateY(0);
             }
             100% {
                 opacity: 0;
-                transform: translate(-50%, -50%) translateY(-50px);
+                transform: translate(-50%, -100%) translateY(-30px);
             }
         }
         .upgrade-section {
             margin-bottom: 10px;
+            width: 100%;
         }
         .upgrade-section h3 {
             margin-bottom: 5px;
             font-size: 16px;
             text-align: center;
+            color: #d4af37;
         }
         .upgrade-list {
             list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 0;
+            margin: 0;
+            width: 100%;
         }
         .upgrade-item {
             display: flex;
             justify-content: space-between;
             padding: 5px;
-            background-color: #3e3e3e;
+            background-color: #4b4b4b;
             margin-bottom: 5px;
             cursor: pointer;
             border: 1px solid transparent;
@@ -130,7 +141,7 @@
         }
         .upgrade-item:hover {
             border-color: #6e6e6e;
-            background-color: #4e4e4e;
+            background-color: #5b5b5b;
         }
         .upgrade-item.highlight {
             border-color: #ffd700;
@@ -138,6 +149,7 @@
         .upgrade-info {
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
         .upgrade-name {
             font-size: 14px;
@@ -199,11 +211,11 @@
             color: #888;
             cursor: not-allowed;
         }
-        #golden-monument {
+        #legendary-treasure {
             margin-top: 10px;
             text-align: center;
         }
-        #monument-progress {
+        #treasure-progress {
             width: 80%;
             height: 15px;
             background-color: #555;
@@ -212,7 +224,7 @@
             border-radius: 10px;
             overflow: hidden;
         }
-        #monument-progress-bar {
+        #treasure-progress-bar {
             height: 100%;
             background-color: #ffd700;
             width: 0%;
@@ -337,9 +349,8 @@
             #clickable-coin {
                 width: 120px;
                 height: 120px;
-                font-size: 32px;
             }
-            #coin-display h2 {
+            #gold-display h2 {
                 font-size: 18px;
             }
         }
@@ -349,7 +360,7 @@
     <div id="notification"></div>
     <div id="tooltip"></div>
     <div id="header">
-        <h1>Click Quest Expanded</h1>
+        <h1>Dragon's Hoard</h1>
         <p>Prestige Points: <span id="prestige-points">0</span> (Multiplier: x<span id="prestige-multiplier">1</span>)</p>
     </div>
     <div id="main-content">
@@ -362,32 +373,32 @@
                     <button class="quantity-button" data-quantity="max">Max</button>
                 </div>
                 <div class="upgrade-section">
-                    <h3>Click Upgrades</h3>
-                    <ul id="click-upgrades" class="upgrade-list"></ul>
+                    <h3>Dragon Upgrades</h3>
+                    <ul id="dragon-upgrades" class="upgrade-list"></ul>
                 </div>
-                <div class="upgrade-section" id="hold-click-upgrade-section" style="display: none;">
-                    <h3>Hold Click Upgrade</h3>
-                    <ul id="hold-click-upgrade" class="upgrade-list"></ul>
+                <div class="upgrade-section" id="fire-breath-upgrade-section" style="display: none;">
+                    <h3>Fire Breath Upgrade</h3>
+                    <ul id="fire-breath-upgrade" class="upgrade-list"></ul>
                 </div>
             </div>
             <div id="center-panel">
-                <div id="coin-display">
-                    <h2>Coins: <span id="coin-count">0</span></h2>
-                    <p>Income Per Click (IPC): <span id="ipc-display">1</span></p>
-                    <p>Coins Per Second (CPS): <span id="cps-display">0</span></p>
+                <div id="gold-display">
+                    <h2>Gold: <span id="gold-count">0</span></h2>
+                    <p>Gold Per Click (GPC): <span id="gpc-display">1</span></p>
+                    <p>Gold Per Second (GPS): <span id="gps-display">0</span></p>
                 </div>
                 <div id="clickable-coin"></div>
                 <div id="prestige-section">
                     <h3>Prestige Progress</h3>
-                    <p>Coins: <span id="coins-for-prestige">0</span> / <span id="prestige-threshold">100,000</span></p>
-                    <button id="prestige-button" disabled>Prestige</button>
+                    <p>Gold: <span id="gold-for-prestige">0</span> / <span id="prestige-threshold">100,000</span></p>
+                    <button id="prestige-button" disabled>Ascend</button>
                 </div>
-                <div id="golden-monument">
-                    <h3>Golden Monument Progress</h3>
-                    <div id="monument-progress">
-                        <div id="monument-progress-bar"></div>
+                <div id="legendary-treasure">
+                    <h3>Legendary Treasure Progress</h3>
+                    <div id="treasure-progress">
+                        <div id="treasure-progress-bar"></div>
                     </div>
-                    <p><span id="monument-progress-text">0%</span> Complete</p>
+                    <p><span id="treasure-progress-text">0%</span> Complete</p>
                 </div>
                 <div id="achievements-section">
                     <h3>Achievements</h3>
@@ -400,8 +411,8 @@
             </div>
             <div id="right-panel">
                 <div class="upgrade-section">
-                    <h3>Passive Upgrades</h3>
-                    <ul id="passive-upgrades" class="upgrade-list"></ul>
+                    <h3>Minion Upgrades</h3>
+                    <ul id="minion-upgrades" class="upgrade-list"></ul>
                 </div>
                 <div class="upgrade-section" id="settings-section" style="display: none;">
                     <h3>Settings</h3>
@@ -423,73 +434,73 @@
         <button id="reset-button">Reset Game</button>
     </div>
     <script>
-        let coins = 0;
-        let ipc = 1;
-        let cps = 0;
+        let gold = 0;
+        let gpc = 1;
+        let gps = 0;
         let totalClicks = 0;
         let prestigePoints = 0;
         let prestigeMultiplier = 1;
         let prestigeThreshold = 100000;
         let purchaseQuantity = 1;
-        let holdClickInterval = 1000;
+        let fireBreathInterval = 1000;
         let isHolding = false;
         let holdInterval;
         let highlightUnlocked = false;
         let highlightEnabled = false;
-        let holdClickUnlocked = false;
         let achievementsUnlocked = [];
-        let goldenMonumentProgress = 0;
-        const maxHoldClickLevel = 50;
-        const coinDisplayElem = document.getElementById('coin-count');
-        const ipcDisplayElem = document.getElementById('ipc-display');
-        const cpsDisplayElem = document.getElementById('cps-display');
+        let legendaryTreasureProgress = 0;
+        const maxFireBreathLevel = 50;
+        let totalPassiveGold = 0;
+        const legendaryTreasureCost = 1e13;
+        const goldDisplayElem = document.getElementById('gold-count');
+        const gpcDisplayElem = document.getElementById('gpc-display');
+        const gpsDisplayElem = document.getElementById('gps-display');
         const clickableCoinElem = document.getElementById('clickable-coin');
-        const clickUpgradesListElem = document.getElementById('click-upgrades');
-        const passiveUpgradesListElem = document.getElementById('passive-upgrades');
-        const holdClickUpgradeListElem = document.getElementById('hold-click-upgrade');
+        const dragonUpgradesListElem = document.getElementById('dragon-upgrades');
+        const minionUpgradesListElem = document.getElementById('minion-upgrades');
+        const fireBreathUpgradeListElem = document.getElementById('fire-breath-upgrade');
         const prestigePointsElem = document.getElementById('prestige-points');
         const prestigeMultiplierElem = document.getElementById('prestige-multiplier');
         const prestigeButtonElem = document.getElementById('prestige-button');
         const prestigeThresholdElem = document.getElementById('prestige-threshold');
-        const coinsForPrestigeElem = document.getElementById('coins-for-prestige');
+        const goldForPrestigeElem = document.getElementById('gold-for-prestige');
         const purchaseQuantityButtons = document.querySelectorAll('.quantity-button');
         const notificationElem = document.getElementById('notification');
         const unlockablesListElem = document.getElementById('unlockables-list');
         const highlightToggleElem = document.getElementById('highlight-toggle');
         const settingsSectionElem = document.getElementById('settings-section');
         const tooltipElem = document.getElementById('tooltip');
-        const holdClickUpgradeSectionElem = document.getElementById('hold-click-upgrade-section');
+        const fireBreathUpgradeSectionElem = document.getElementById('fire-breath-upgrade-section');
         const achievementsListElem = document.getElementById('achievements-list');
         const centerPanel = document.getElementById('center-panel');
-        const monumentProgressBarElem = document.getElementById('monument-progress-bar');
-        const monumentProgressTextElem = document.getElementById('monument-progress-text');
-        const goldenMonumentCost = 1e13;
-        const clickUpgrades = [
-            { name: "Faster Fingers", baseCost: 15, quantity: 0, multiplier: 1, description: "Increases IPC by 1 per upgrade." },
-            { name: "Mechanical Clicker", baseCost: 100, quantity: 0, multiplier: 5, description: "Increases IPC by 5 per upgrade." },
-            { name: "Quantum Tapper", baseCost: 1000, quantity: 0, multiplier: 25, description: "Increases IPC by 25 per upgrade." },
-            { name: "Dimensional Press", baseCost: 10000, quantity: 0, multiplier: 125, description: "Increases IPC by 125 per upgrade." },
-            { name: "Infinity Glove", baseCost: 100000, quantity: 0, multiplier: 625, description: "Increases IPC by 625 per upgrade." },
-            { name: "Cosmic Clicker", baseCost: 1e6, quantity: 0, multiplier: 3125, description: "Increases IPC by 3125 per upgrade." },
-            { name: "Temporal Tapper", baseCost: 1e7, quantity: 0, multiplier: 15625, description: "Increases IPC by 15625 per upgrade." },
-            { name: "Galactic Press", baseCost: 1e8, quantity: 0, multiplier: 78125, description: "Increases IPC by 78125 per upgrade." },
-            { name: "Universal Clicker", baseCost: 1e9, quantity: 0, multiplier: 390625, description: "Increases IPC by 390625 per upgrade." },
-            { name: "Multiversal Tap", baseCost: 1e10, quantity: 0, multiplier: 1953125, description: "Increases IPC by 1,953,125 per upgrade." },
+        const treasureProgressBarElem = document.getElementById('treasure-progress-bar');
+        const treasureProgressTextElem = document.getElementById('treasure-progress-text');
+        const dragonUpgrades = [
+            { name: "Sharpen Claws", baseCost: 15, quantity: 0, multiplier: 1, description: "Increases GPC by 1 per upgrade." },
+            { name: "Wing Strength", baseCost: 100, quantity: 0, multiplier: 5, description: "Increases GPC by 5 per upgrade." },
+            { name: "Fiery Breath", baseCost: 1000, quantity: 0, multiplier: 25, description: "Increases GPC by 25 per upgrade." },
+            { name: "Ancient Wisdom", baseCost: 10000, quantity: 0, multiplier: 125, description: "Increases GPC by 125 per upgrade." },
+            { name: "Dragon Heart", baseCost: 100000, quantity: 0, multiplier: 625, description: "Increases GPC by 625 per upgrade." },
+            { name: "Elder Scales", baseCost: 1e6, quantity: 0, multiplier: 3125, description: "Increases GPC by 3125 per upgrade." },
+            { name: "Mystic Aura", baseCost: 1e7, quantity: 0, multiplier: 15625, description: "Increases GPC by 15625 per upgrade." },
+            { name: "Celestial Power", baseCost: 1e8, quantity: 0, multiplier: 78125, description: "Increases GPC by 78125 per upgrade." },
+            { name: "Divine Flame", baseCost: 1e9, quantity: 0, multiplier: 390625, description: "Increases GPC by 390625 per upgrade." },
+            { name: "Eternal Dragon", baseCost: 1e10, quantity: 0, multiplier: 1953125, description: "Increases GPC by 1,953,125 per upgrade." },
         ];
-        const passiveUpgrades = [
-            { name: "Coin Generator", baseCost: 10, quantity: 0, multiplier: 2, description: "Increases CPS by 2 per upgrade." },
-            { name: "Automated Mint", baseCost: 80, quantity: 0, multiplier: 10, description: "Increases CPS by 10 per upgrade." },
-            { name: "Time Dilation Device", baseCost: 800, quantity: 0, multiplier: 50, description: "Increases CPS by 50 per upgrade." },
-            { name: "Eternal Vault", baseCost: 8000, quantity: 0, multiplier: 250, description: "Increases CPS by 250 per upgrade." },
-            { name: "Galactic Bank", baseCost: 80000, quantity: 0, multiplier: 1250, description: "Increases CPS by 1250 per upgrade." },
-            { name: "Cosmic Mint", baseCost: 8e5, quantity: 0, multiplier: 6250, description: "Increases CPS by 6,250 per upgrade." },
-            { name: "Temporal Forge", baseCost: 8e6, quantity: 0, multiplier: 31250, description: "Increases CPS by 31,250 per upgrade." },
-            { name: "Quantum Vault", baseCost: 8e7, quantity: 0, multiplier: 156250, description: "Increases CPS by 156,250 per upgrade." },
-            { name: "Universal Bank", baseCost: 8e8, quantity: 0, multiplier: 781250, description: "Increases CPS by 781,250 per upgrade." },
-            { name: "Multiversal Mint", baseCost: 8e9, quantity: 0, multiplier: 3906250, description: "Increases CPS by 3,906,250 per upgrade." },
+        const minionUpgrades = [
+            { name: "Goblin Servants", baseCost: 10, quantity: 0, multiplier: 2, description: "Increases GPS by 2 per upgrade." },
+            { name: "Orc Warriors", baseCost: 80, quantity: 0, multiplier: 10, description: "Increases GPS by 10 per upgrade." },
+            { name: "Troll Guards", baseCost: 800, quantity: 0, multiplier: 50, description: "Increases GPS by 50 per upgrade." },
+            { name: "Ogre Brutes", baseCost: 8000, quantity: 0, multiplier: 250, description: "Increases GPS by 250 per upgrade." },
+            { name: "Giant Overseers", baseCost: 80000, quantity: 0, multiplier: 1250, description: "Increases GPS by 1250 per upgrade." },
+            { name: "Wraith Shadows", baseCost: 8e5, quantity: 0, multiplier: 6250, description: "Increases GPS by 6,250 per upgrade." },
+            { name: "Necromancer Cult", baseCost: 8e6, quantity: 0, multiplier: 31250, description: "Increases GPS by 31,250 per upgrade." },
+            { name: "Dark Knights", baseCost: 8e7, quantity: 0, multiplier: 156250, description: "Increases GPS by 156,250 per upgrade." },
+            { name: "Shadow Dragons", baseCost: 8e8, quantity: 0, multiplier: 781250, description: "Increases GPS by 781,250 per upgrade." },
+            { name: "Demonic Legion", baseCost: 8e9, quantity: 0, multiplier: 3906250, description: "Increases GPS by 3,906,250 per upgrade." },
         ];
-        const holdClickUpgrade = {
-            name: "Hold Click Ability",
+        const fireBreathUpgrade = {
+            name: "Fire Breath Mastery",
             baseCost: 1000,
             quantity: 0,
             multiplier: 0.2,
@@ -497,30 +508,29 @@
             unlocked: false,
         };
         const unlockables = [
-            { name: "Hold Click Ability", requiredPP: 1, unlocked: false },
+            { name: "Fire Breath Mastery", requiredPP: 1, unlocked: false },
             { name: "Highlight Best Upgrade", requiredPP: 2, unlocked: false },
-            { name: "Golden Click", requiredPP: 5, unlocked: false },
-            { name: "Auto Prestige", requiredPP: 10, unlocked: false },
-            { name: "Monument Builder", requiredPP: 15, unlocked: false },
+            { name: "Golden Scales", requiredPP: 5, unlocked: false },
+            { name: "Auto Ascend", requiredPP: 10, unlocked: false },
+            { name: "Treasure Seeker", requiredPP: 15, unlocked: false },
         ];
         const achievements = [
-            { id: 1, name: "First Click", description: "Make your first click.", condition: () => totalClicks >= 1, unlocked: false },
-            { id: 2, name: "Click Novice", description: "Make 100 clicks.", condition: () => totalClicks >= 100, unlocked: false },
-            { id: 3, name: "Wealthy", description: "Accumulate 1,000,000 coins.", condition: () => coins >= 1e6, unlocked: false },
-            { id: 4, name: "Auto Enthusiast", description: "Buy 50 passive upgrades.", condition: () => totalPassiveUpgrades() >= 50, unlocked: false },
-            { id: 5, name: "Prestige Initiate", description: "Prestige for the first time.", condition: () => prestigePoints >= 1, unlocked: false },
-            { id: 6, name: "Millionaire Clicker", description: "Earn 1,000,000 coins by clicking.", condition: () => totalClicks * ipc >= 1e6, unlocked: false },
-            { id: 7, name: "Master Clicker", description: "Make 10,000 clicks.", condition: () => totalClicks >= 10000, unlocked: false },
-            { id: 8, name: "Passive Income", description: "Earn 1,000,000 coins passively.", condition: () => totalPassiveIncome >= 1e6, unlocked: false },
-            { id: 9, name: "Monumental Effort", description: "Build the Golden Monument.", condition: () => goldenMonumentProgress >= 100, unlocked: false },
-            { id: 10, name: "Prestige Master", description: "Prestige 10 times.", condition: () => prestigePoints >= 10, unlocked: false },
+            { id: 1, name: "First Gold", description: "Collect your first piece of gold.", condition: () => totalClicks >= 1, unlocked: false },
+            { id: 2, name: "Dragon Apprentice", description: "Collect 100 gold.", condition: () => gold >= 100, unlocked: false },
+            { id: 3, name: "Wealth Hoarder", description: "Accumulate 1,000,000 gold.", condition: () => gold >= 1e6, unlocked: false },
+            { id: 4, name: "Minion Master", description: "Hire 50 minions.", condition: () => totalMinionUpgrades() >= 50, unlocked: false },
+            { id: 5, name: "Ascendant Dragon", description: "Ascend for the first time.", condition: () => prestigePoints >= 1, unlocked: false },
+            { id: 6, name: "Gold Collector", description: "Collect 1,000,000 gold by clicking.", condition: () => totalClicks * gpc >= 1e6, unlocked: false },
+            { id: 7, name: "Master Dragon", description: "Collect 10,000 gold.", condition: () => gold >= 10000, unlocked: false },
+            { id: 8, name: "Passive Wealth", description: "Earn 1,000,000 gold passively.", condition: () => totalPassiveGold >= 1e6, unlocked: false },
+            { id: 9, name: "Legendary Hoard", description: "Acquire the Legendary Treasure.", condition: () => legendaryTreasureProgress >= 100, unlocked: false },
+            { id: 10, name: "Ascension Master", description: "Ascend 10 times.", condition: () => prestigePoints >= 10, unlocked: false },
         ];
-        let totalPassiveIncome = 0;
         function init() {
             loadGame();
-            calculateIPC();
-            calculateCPS();
-            calculateHoldClickSpeed();
+            calculateGPC();
+            calculateGPS();
+            calculateFireBreathSpeed();
             updateDisplay();
             renderUpgrades();
             checkUnlockables();
@@ -530,59 +540,59 @@
             setInterval(saveGame, 60000);
         }
         function gameLoop() {
-            const income = cps / 10;
-            coins += income;
-            totalPassiveIncome += income;
+            const income = gps / 10;
+            gold += income;
+            totalPassiveGold += income;
             updateDisplay();
             checkAchievements();
         }
         function saveGame() {
             const saveData = {
-                coins,
-                ipc,
-                cps,
+                gold,
+                gpc,
+                gps,
                 totalClicks,
-                totalPassiveIncome,
+                totalPassiveGold,
                 prestigePoints,
                 prestigeMultiplier,
                 prestigeThreshold,
-                holdClickUpgrade,
+                fireBreathUpgrade,
                 highlightUnlocked,
                 highlightEnabled,
-                clickUpgrades,
-                passiveUpgrades,
+                dragonUpgrades,
+                minionUpgrades,
                 unlockables,
                 achievementsUnlocked,
-                goldenMonumentProgress,
+                legendaryTreasureProgress,
                 timestamp: Date.now(),
             };
-            localStorage.setItem('clickQuestSave', JSON.stringify(saveData));
+            localStorage.setItem('dragonsHoardSave', JSON.stringify(saveData));
             showNotification('Game Saved!');
         }
         function loadGame() {
-            const savedDataString = localStorage.getItem('clickQuestSave');
+            const savedDataString = localStorage.getItem('dragonsHoardSave');
             if (savedDataString) {
                 const savedData = JSON.parse(savedDataString);
-                coins = savedData.coins || 0;
-                ipc = savedData.ipc || 1;
-                cps = savedData.cps || 0;
+                gold = savedData.gold || 0;
+                gpc = savedData.gpc || 1;
+                gps = savedData.gps || 0;
                 totalClicks = savedData.totalClicks || 0;
-                totalPassiveIncome = savedData.totalPassiveIncome || 0;
+                totalPassiveGold = savedData.totalPassiveGold || 0;
                 prestigePoints = savedData.prestigePoints || 0;
                 prestigeMultiplier = savedData.prestigeMultiplier || 1;
                 prestigeThreshold = savedData.prestigeThreshold || 100000;
-                holdClickUpgrade.quantity = savedData.holdClickUpgrade.quantity || 0;
-                holdClickUpgrade.unlocked = savedData.holdClickUpgrade.unlocked || false;
+                fireBreathUpgrade.quantity = savedData.fireBreathUpgrade.quantity || 0;
+                fireBreathUpgrade.unlocked = savedData.fireBreathUpgrade.unlocked || false;
                 highlightUnlocked = savedData.highlightUnlocked || false;
                 highlightEnabled = savedData.highlightEnabled || false;
-                clickUpgrades.forEach((upgrade, index) => {
-                    const savedUpgrade = savedData.clickUpgrades[index];
+                dragonUpgrades.forEach((upgrade, index) => {
+                    const savedUpgrade = savedData.dragonUpgrades[index];
                     if (savedUpgrade) {
                         upgrade.quantity = savedUpgrade.quantity || 0;
                     }
                 });
-                passiveUpgrades.forEach((upgrade, index) => {
-                    const savedUpgrade = savedData.passiveUpgrades[index];
+                minionUpgrades.forEach((upgrade, index) => {
+                    const savedUpgrade = savedData.minionUpgrades[index];
                     if (savedUpgrade) {
                         upgrade.quantity = savedUpgrade.quantity || 0;
                     }
@@ -594,17 +604,17 @@
                     }
                 });
                 achievementsUnlocked = savedData.achievementsUnlocked || [];
-                goldenMonumentProgress = savedData.goldenMonumentProgress || 0;
+                legendaryTreasureProgress = savedData.legendaryTreasureProgress || 0;
                 const offlineTime = (Date.now() - savedData.timestamp) / 1000;
-                const offlineEarnings = cps * offlineTime;
-                coins += offlineEarnings;
-                totalPassiveIncome += offlineEarnings;
-                showNotification(`Welcome back! You earned ${formatNumber(offlineEarnings)} coins while offline.`);
+                const offlineEarnings = gps * offlineTime;
+                gold += offlineEarnings;
+                totalPassiveGold += offlineEarnings;
+                showNotification(`Welcome back! Your minions gathered ${formatNumber(offlineEarnings)} gold while you were away.`);
             }
         }
         function resetGame() {
             if (confirm('Are you sure you want to reset the game? All progress will be lost.')) {
-                localStorage.removeItem('clickQuestSave');
+                localStorage.removeItem('dragonsHoardSave');
                 location.reload();
             }
         }
@@ -617,28 +627,28 @@
             return num.toFixed(2);
         }
         function updateDisplay() {
-            coinDisplayElem.textContent = formatNumber(coins);
-            ipcDisplayElem.textContent = formatNumber(ipc);
-            cpsDisplayElem.textContent = formatNumber(cps);
+            goldDisplayElem.textContent = formatNumber(gold);
+            gpcDisplayElem.textContent = formatNumber(gpc);
+            gpsDisplayElem.textContent = formatNumber(gps);
             prestigePointsElem.textContent = prestigePoints;
             prestigeMultiplierElem.textContent = prestigeMultiplier.toFixed(2);
             prestigeThresholdElem.textContent = formatNumber(prestigeThreshold);
-            coinsForPrestigeElem.textContent = formatNumber(coins);
-            prestigeButtonElem.disabled = coins < prestigeThreshold;
-            updateMonumentProgress();
+            goldForPrestigeElem.textContent = formatNumber(gold);
+            prestigeButtonElem.disabled = gold < prestigeThreshold;
+            updateTreasureProgress();
             highlightBestUpgrades();
-            if (holdClickUpgrade.unlocked) {
-                holdClickUpgradeSectionElem.style.display = 'block';
+            if (fireBreathUpgrade.unlocked) {
+                fireBreathUpgradeSectionElem.style.display = 'block';
             } else {
-                holdClickUpgradeSectionElem.style.display = 'none';
+                fireBreathUpgradeSectionElem.style.display = 'none';
             }
             renderAchievements();
         }
         clickableCoinElem.addEventListener('mousedown', () => {
-            if (!canHoldClick()) return;
+            if (!canUseFireBreath()) return;
             isHolding = true;
             clickCoin();
-            holdInterval = setInterval(clickCoin, holdClickInterval);
+            holdInterval = setInterval(clickCoin, fireBreathInterval);
         });
         clickableCoinElem.addEventListener('mouseup', () => {
             if (isHolding) {
@@ -656,31 +666,31 @@
             if (!isHolding) clickCoin();
         });
         function clickCoin() {
-            coins += ipc;
+            gold += gpc;
             totalClicks += 1;
             const floatingText = document.createElement('span');
             floatingText.classList.add('floating-text');
-            floatingText.textContent = `+${formatNumber(ipc)}`;
-            centerPanel.appendChild(floatingText);
+            floatingText.textContent = `+${formatNumber(gpc)}`;
+            clickableCoinElem.appendChild(floatingText);
             setTimeout(() => {
                 floatingText.remove();
             }, 800);
             updateDisplay();
             checkAchievements();
         }
-        function calculateIPC() {
-            ipc = (1 + clickUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity * upgrade.multiplier, 0)) * prestigeMultiplier;
+        function calculateGPC() {
+            gpc = (1 + dragonUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity * upgrade.multiplier, 0)) * prestigeMultiplier;
         }
-        function calculateCPS() {
-            cps = passiveUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity * upgrade.multiplier, 0) * prestigeMultiplier;
+        function calculateGPS() {
+            gps = minionUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity * upgrade.multiplier, 0) * prestigeMultiplier;
         }
-        function calculateHoldClickSpeed() {
-            const totalMultiplier = holdClickUpgrade.quantity * holdClickUpgrade.multiplier;
-            holdClickInterval = 1000 / (1 + totalMultiplier);
-            if (holdClickInterval < 50) holdClickInterval = 50;
+        function calculateFireBreathSpeed() {
+            const totalMultiplier = fireBreathUpgrade.quantity * fireBreathUpgrade.multiplier;
+            fireBreathInterval = 1000 / (1 + totalMultiplier);
+            if (fireBreathInterval < 50) fireBreathInterval = 50;
             if (isHolding) {
                 clearInterval(holdInterval);
-                holdInterval = setInterval(clickCoin, holdClickInterval);
+                holdInterval = setInterval(clickCoin, fireBreathInterval);
             }
         }
         purchaseQuantityButtons.forEach(button => {
@@ -690,79 +700,79 @@
                 purchaseQuantity = button.getAttribute('data-quantity');
             });
         });
-        function buyClickUpgrade(index) {
-            const upgrade = clickUpgrades[index];
+        function buyDragonUpgrade(index) {
+            const upgrade = dragonUpgrades[index];
             const quantityToBuy = getPurchaseQuantity(upgrade);
             if (quantityToBuy <= 0) return;
             const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantityToBuy);
-            if (coins >= cost) {
-                coins -= cost;
+            if (gold >= cost) {
+                gold -= cost;
                 upgrade.quantity += quantityToBuy;
-                calculateIPC();
+                calculateGPC();
                 updateDisplay();
                 renderUpgrades();
             } else {
-                showNotification('Not enough coins!');
+                showNotification('Not enough gold!');
             }
         }
-        function buyPassiveUpgrade(index) {
-            const upgrade = passiveUpgrades[index];
+        function buyMinionUpgrade(index) {
+            const upgrade = minionUpgrades[index];
             const quantityToBuy = getPurchaseQuantity(upgrade);
             if (quantityToBuy <= 0) return;
             const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantityToBuy);
-            if (coins >= cost) {
-                coins -= cost;
+            if (gold >= cost) {
+                gold -= cost;
                 upgrade.quantity += quantityToBuy;
-                calculateCPS();
+                calculateGPS();
                 updateDisplay();
                 renderUpgrades();
             } else {
-                showNotification('Not enough coins!');
+                showNotification('Not enough gold!');
             }
         }
-        function buyHoldClickUpgrade() {
-            const upgrade = holdClickUpgrade;
+        function buyFireBreathUpgrade() {
+            const upgrade = fireBreathUpgrade;
             const quantityToBuy = getPurchaseQuantity(upgrade, true);
             if (quantityToBuy <= 0) return;
             const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantityToBuy, true);
-            if (coins >= cost) {
-                coins -= cost;
+            if (gold >= cost) {
+                gold -= cost;
                 upgrade.quantity += quantityToBuy;
-                if (upgrade.quantity > maxHoldClickLevel) {
-                    upgrade.quantity = maxHoldClickLevel;
+                if (upgrade.quantity > maxFireBreathLevel) {
+                    upgrade.quantity = maxFireBreathLevel;
                 }
-                calculateHoldClickSpeed();
+                calculateFireBreathSpeed();
                 updateDisplay();
                 renderUpgrades();
             } else {
-                showNotification('Not enough coins or maximum level reached!');
+                showNotification('Not enough gold or maximum level reached!');
             }
         }
-        function getPurchaseQuantity(upgrade, isHoldClick = false) {
-            let maxQuantity = purchaseQuantity === 'max' ? calculateMaxAffordable(upgrade, isHoldClick) : parseInt(purchaseQuantity);
-            if (isHoldClick) {
-                maxQuantity = Math.min(maxQuantity, maxHoldClickLevel - upgrade.quantity);
+        function getPurchaseQuantity(upgrade, isFireBreath = false) {
+            let maxQuantity = purchaseQuantity === 'max' ? calculateMaxAffordable(upgrade, isFireBreath) : parseInt(purchaseQuantity);
+            if (isFireBreath) {
+                maxQuantity = Math.min(maxQuantity, maxFireBreathLevel - upgrade.quantity);
             }
             return maxQuantity;
         }
-        function calculateTotalCost(baseCost, currentQuantity, quantityToBuy, isHoldClick = false) {
+        function calculateTotalCost(baseCost, currentQuantity, quantityToBuy, isFireBreath = false) {
             let totalCost = 0;
-            const costMultiplier = isHoldClick ? 1.15 : 1.1;
+            const costMultiplier = isFireBreath ? 1.15 : 1.1;
             for (let i = 0; i < quantityToBuy; i++) {
                 totalCost += baseCost * Math.pow(costMultiplier, currentQuantity + i);
             }
             return totalCost;
         }
-        function calculateMaxAffordable(upgrade, isHoldClick = false) {
+        function calculateMaxAffordable(upgrade, isFireBreath = false) {
             let quantity = 0;
             let totalCost = 0;
             let currentQuantity = upgrade.quantity;
-            const maxLevel = isHoldClick ? maxHoldClickLevel : Infinity;
-            const costMultiplier = isHoldClick ? 1.15 : 1.1;
+            const maxLevel = isFireBreath ? maxFireBreathLevel : Infinity;
+            const costMultiplier = isFireBreath ? 1.15 : 1.1;
             while (true) {
                 if (currentQuantity >= maxLevel) break;
                 const cost = upgrade.baseCost * Math.pow(costMultiplier, currentQuantity);
-                if (coins >= totalCost + cost) {
+                if (gold >= totalCost + cost) {
                     totalCost += cost;
                     currentQuantity += 1;
                     quantity += 1;
@@ -773,11 +783,11 @@
             return quantity;
         }
         function renderUpgrades() {
-            clickUpgradesListElem.innerHTML = '';
-            clickUpgrades.forEach((upgrade, index) => {
+            dragonUpgradesListElem.innerHTML = '';
+            dragonUpgrades.forEach((upgrade, index) => {
                 const upgradeItem = document.createElement('li');
                 upgradeItem.classList.add('upgrade-item');
-                upgradeItem.addEventListener('click', () => buyClickUpgrade(index));
+                upgradeItem.addEventListener('click', () => buyDragonUpgrade(index));
                 const upgradeInfo = document.createElement('div');
                 upgradeInfo.classList.add('upgrade-info');
                 const upgradeName = document.createElement('span');
@@ -791,16 +801,16 @@
                 upgradeInfo.appendChild(upgradeName);
                 upgradeInfo.appendChild(upgradeCost);
                 upgradeItem.appendChild(upgradeInfo);
-                clickUpgradesListElem.appendChild(upgradeItem);
+                dragonUpgradesListElem.appendChild(upgradeItem);
                 upgradeItem.addEventListener('mouseover', (e) => showTooltip(e, upgrade.description));
                 upgradeItem.addEventListener('mousemove', (e) => moveTooltip(e));
                 upgradeItem.addEventListener('mouseout', hideTooltip);
             });
-            passiveUpgradesListElem.innerHTML = '';
-            passiveUpgrades.forEach((upgrade, index) => {
+            minionUpgradesListElem.innerHTML = '';
+            minionUpgrades.forEach((upgrade, index) => {
                 const upgradeItem = document.createElement('li');
                 upgradeItem.classList.add('upgrade-item');
-                upgradeItem.addEventListener('click', () => buyPassiveUpgrade(index));
+                upgradeItem.addEventListener('click', () => buyMinionUpgrade(index));
                 const upgradeInfo = document.createElement('div');
                 upgradeInfo.classList.add('upgrade-info');
                 const upgradeName = document.createElement('span');
@@ -814,66 +824,66 @@
                 upgradeInfo.appendChild(upgradeName);
                 upgradeInfo.appendChild(upgradeCost);
                 upgradeItem.appendChild(upgradeInfo);
-                passiveUpgradesListElem.appendChild(upgradeItem);
+                minionUpgradesListElem.appendChild(upgradeItem);
                 upgradeItem.addEventListener('mouseover', (e) => showTooltip(e, upgrade.description));
                 upgradeItem.addEventListener('mousemove', (e) => moveTooltip(e));
                 upgradeItem.addEventListener('mouseout', hideTooltip);
             });
-            holdClickUpgradeListElem.innerHTML = '';
-            if (holdClickUpgrade.unlocked) {
+            fireBreathUpgradeListElem.innerHTML = '';
+            if (fireBreathUpgrade.unlocked) {
                 const upgradeItem = document.createElement('li');
                 upgradeItem.classList.add('upgrade-item');
-                upgradeItem.addEventListener('click', () => buyHoldClickUpgrade());
+                upgradeItem.addEventListener('click', () => buyFireBreathUpgrade());
                 const upgradeInfo = document.createElement('div');
                 upgradeInfo.classList.add('upgrade-info');
                 const upgradeName = document.createElement('span');
                 upgradeName.classList.add('upgrade-name');
-                upgradeName.textContent = `${holdClickUpgrade.name} (Level ${holdClickUpgrade.quantity}/${maxHoldClickLevel})`;
+                upgradeName.textContent = `${fireBreathUpgrade.name} (Level ${fireBreathUpgrade.quantity}/${maxFireBreathLevel})`;
                 const upgradeCost = document.createElement('span');
                 upgradeCost.classList.add('upgrade-cost');
-                const quantity = getPurchaseQuantity(holdClickUpgrade, true);
-                const cost = calculateTotalCost(holdClickUpgrade.baseCost, holdClickUpgrade.quantity, quantity, true);
+                const quantity = getPurchaseQuantity(fireBreathUpgrade, true);
+                const cost = calculateTotalCost(fireBreathUpgrade.baseCost, fireBreathUpgrade.quantity, quantity, true);
                 upgradeCost.textContent = `Cost: ${formatNumber(cost)}`;
                 upgradeInfo.appendChild(upgradeName);
                 upgradeInfo.appendChild(upgradeCost);
                 upgradeItem.appendChild(upgradeInfo);
-                holdClickUpgradeListElem.appendChild(upgradeItem);
-                upgradeItem.addEventListener('mouseover', (e) => showTooltip(e, holdClickUpgrade.description));
+                fireBreathUpgradeListElem.appendChild(upgradeItem);
+                upgradeItem.addEventListener('mouseover', (e) => showTooltip(e, upgrade.description));
                 upgradeItem.addEventListener('mousemove', (e) => moveTooltip(e));
                 upgradeItem.addEventListener('mouseout', hideTooltip);
             }
         }
         function highlightBestUpgrades() {
-            const clickUpgradeItems = clickUpgradesListElem.querySelectorAll('.upgrade-item');
-            const passiveUpgradeItems = passiveUpgradesListElem.querySelectorAll('.upgrade-item');
-            clickUpgradeItems.forEach(item => item.classList.remove('highlight'));
-            passiveUpgradeItems.forEach(item => item.classList.remove('highlight'));
+            const dragonUpgradeItems = dragonUpgradesListElem.querySelectorAll('.upgrade-item');
+            const minionUpgradeItems = minionUpgradesListElem.querySelectorAll('.upgrade-item');
+            dragonUpgradeItems.forEach(item => item.classList.remove('highlight'));
+            minionUpgradeItems.forEach(item => item.classList.remove('highlight'));
             if (!highlightEnabled) return;
-            let bestClickUpgradeIndex = -1;
-            let bestClickValue = 0;
-            clickUpgrades.forEach((upgrade, index) => {
+            let bestDragonUpgradeIndex = -1;
+            let bestDragonValue = 0;
+            dragonUpgrades.forEach((upgrade, index) => {
                 const cost = upgrade.baseCost * Math.pow(1.1, upgrade.quantity);
                 const value = (upgrade.multiplier * prestigeMultiplier) / cost;
-                if (value > bestClickValue) {
-                    bestClickValue = value;
-                    bestClickUpgradeIndex = index;
+                if (value > bestDragonValue) {
+                    bestDragonValue = value;
+                    bestDragonUpgradeIndex = index;
                 }
             });
-            let bestPassiveUpgradeIndex = -1;
-            let bestPassiveValue = 0;
-            passiveUpgrades.forEach((upgrade, index) => {
+            let bestMinionUpgradeIndex = -1;
+            let bestMinionValue = 0;
+            minionUpgrades.forEach((upgrade, index) => {
                 const cost = upgrade.baseCost * Math.pow(1.1, upgrade.quantity);
                 const value = (upgrade.multiplier * prestigeMultiplier) / cost;
-                if (value > bestPassiveValue) {
-                    bestPassiveValue = value;
-                    bestPassiveUpgradeIndex = index;
+                if (value > bestMinionValue) {
+                    bestMinionValue = value;
+                    bestMinionUpgradeIndex = index;
                 }
             });
-            if (bestClickUpgradeIndex !== -1) {
-                clickUpgradeItems[bestClickUpgradeIndex].classList.add('highlight');
+            if (bestDragonUpgradeIndex !== -1) {
+                dragonUpgradeItems[bestDragonUpgradeIndex].classList.add('highlight');
             }
-            if (bestPassiveUpgradeIndex !== -1) {
-                passiveUpgradeItems[bestPassiveUpgradeIndex].classList.add('highlight');
+            if (bestMinionUpgradeIndex !== -1) {
+                minionUpgradeItems[bestMinionUpgradeIndex].classList.add('highlight');
             }
         }
         prestigeButtonElem.addEventListener('click', () => {
@@ -882,21 +892,21 @@
         function prestige() {
             prestigePoints += 1;
             prestigeMultiplier = 1 + prestigePoints * 0.5;
-            coins = 0;
-            ipc = 1;
-            cps = 0;
+            gold = 0;
+            gpc = 1;
+            gps = 0;
             totalClicks = 0;
-            totalPassiveIncome = 0;
+            totalPassiveGold = 0;
             prestigeThreshold *= 5;
-            clickUpgrades.forEach(upgrade => upgrade.quantity = 0);
-            passiveUpgrades.forEach(upgrade => upgrade.quantity = 0);
-            calculateIPC();
-            calculateCPS();
-            calculateHoldClickSpeed();
+            dragonUpgrades.forEach(upgrade => upgrade.quantity = 0);
+            minionUpgrades.forEach(upgrade => upgrade.quantity = 0);
+            calculateGPC();
+            calculateGPS();
+            calculateFireBreathSpeed();
             updateDisplay();
             renderUpgrades();
             checkUnlockables();
-            showNotification(`You have prestiged! Your new prestige multiplier is x${prestigeMultiplier.toFixed(2)}.`);
+            showNotification(`You have ascended! Your new prestige multiplier is x${prestigeMultiplier.toFixed(2)}.`);
         }
         function showNotification(message) {
             notificationElem.textContent = message;
@@ -915,22 +925,22 @@
                         highlightUnlocked = true;
                         settingsSectionElem.style.display = 'block';
                     }
-                    if (unlockable.name === "Hold Click Ability") {
-                        holdClickUpgrade.unlocked = true;
+                    if (unlockable.name === "Fire Breath Mastery") {
+                        fireBreathUpgrade.unlocked = true;
                     }
-                    if (unlockable.name === "Golden Click") {
-                        ipc *= 2;
-                        showNotification("Golden Click activated! IPC doubled.");
+                    if (unlockable.name === "Golden Scales") {
+                        gpc *= 2;
+                        showNotification("Golden Scales activated! GPC doubled.");
                     }
-                    if (unlockable.name === "Auto Prestige") {
+                    if (unlockable.name === "Auto Ascend") {
                         setInterval(() => {
-                            if (coins >= prestigeThreshold) {
+                            if (gold >= prestigeThreshold) {
                                 prestige();
                             }
                         }, 5000);
                     }
-                    if (unlockable.name === "Monument Builder") {
-                        goldenMonumentProgress = 0;
+                    if (unlockable.name === "Treasure Seeker") {
+                        legendaryTreasureProgress = 0;
                     }
                 }
             });
@@ -962,8 +972,8 @@
                 achievementsListElem.appendChild(listItem);
             });
         }
-        function totalPassiveUpgrades() {
-            return passiveUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity, 0);
+        function totalMinionUpgrades() {
+            return minionUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity, 0);
         }
         highlightToggleElem.addEventListener('change', () => {
             highlightEnabled = highlightToggleElem.checked;
@@ -993,22 +1003,22 @@
             tooltipElem.style.opacity = '0';
             tooltipElem.style.visibility = 'hidden';
         }
-        function canHoldClick() {
-            return holdClickUpgrade.unlocked && holdClickUpgrade.quantity > 0;
+        function canUseFireBreath() {
+            return fireBreathUpgrade.unlocked && fireBreathUpgrade.quantity > 0;
         }
-        function updateMonumentProgress() {
-            if (goldenMonumentProgress >= 100) return;
-            const progress = Math.min((coins / goldenMonumentCost) * 100, 100);
-            monumentProgressBarElem.style.width = `${progress}%`;
-            monumentProgressTextElem.textContent = `${progress.toFixed(2)}%`;
-            if (progress >= 100 && goldenMonumentProgress < 100) {
-                goldenMonumentProgress = 100;
-                showNotification('Congratulations! You have built the Golden Monument!');
+        function updateTreasureProgress() {
+            if (legendaryTreasureProgress >= 100) return;
+            const progress = Math.min((gold / legendaryTreasureCost) * 100, 100);
+            treasureProgressBarElem.style.width = `${progress}%`;
+            treasureProgressTextElem.textContent = `${progress.toFixed(2)}%`;
+            if (progress >= 100 && legendaryTreasureProgress < 100) {
+                legendaryTreasureProgress = 100;
+                showNotification('Congratulations! You have acquired the Legendary Treasure!');
             }
         }
         document.getElementById('save-button').addEventListener('click', saveGame);
         document.getElementById('export-button').addEventListener('click', () => {
-            const saveDataString = localStorage.getItem('clickQuestSave');
+            const saveDataString = localStorage.getItem('dragonsHoardSave');
             if (saveDataString) {
                 const encodedData = btoa(saveDataString);
                 navigator.clipboard.writeText(encodedData).then(() => {
@@ -1025,11 +1035,11 @@
             if (saveString) {
                 try {
                     const decoded = atob(saveString);
-                    localStorage.setItem('clickQuestSave', decoded);
+                    localStorage.setItem('dragonsHoardSave', decoded);
                     loadGame();
-                    calculateIPC();
-                    calculateCPS();
-                    calculateHoldClickSpeed();
+                    calculateGPC();
+                    calculateGPS();
+                    calculateFireBreathSpeed();
                     updateDisplay();
                     renderUpgrades();
                     checkUnlockables();
