@@ -90,15 +90,15 @@
         /* Floating Text Effect */
         .floating-text {
             position: absolute;
-            animation: float-up 1s ease-out forwards;
+            animation: float-up 0.8s ease-out forwards;
             pointer-events: none;
-            color: #000000;
+            color: #ffffff; /* Changed to white for better visibility */
             font-size: 24px;
             font-weight: bold;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            text-shadow: 0 0 5px #fff;
+            text-shadow: 0 0 5px #000;
         }
 
         @keyframes float-up {
@@ -229,6 +229,7 @@
             width: 0%;
         }
 
+        /* Footer */
         #footer {
             display: flex;
             justify-content: center;
@@ -248,7 +249,7 @@
         /* Notification System */
         #notification {
             position: fixed;
-            bottom: 20px;
+            top: 20px; /* Moved to the top */
             left: 50%;
             transform: translateX(-50%);
             background-color: #2e2e2e;
@@ -258,7 +259,7 @@
             display: none;
             z-index: 100;
             opacity: 0;
-            animation: fade-in-out 3s forwards;
+            animation: fade-in-out 2s forwards; /* Shortened duration */
         }
 
         @keyframes fade-in-out {
@@ -484,7 +485,7 @@
 
             setTimeout(() => {
                 floatingText.remove();
-            }, 1000);
+            }, 800);
 
             updateDisplay();
         });
