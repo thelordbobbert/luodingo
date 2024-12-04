@@ -1,273 +1,761 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Racism Clicker</title>
+    <meta charset="UTF-8">
+    <title>Click Quest</title>
     <style>
-        body {
+        /* Basic Reset */
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
             font-family: Arial, sans-serif;
-            background: #1e1e2f;
-            color: #fff;
+            background-color: #1e1e1e;
+            color: #f1f1f1;
+            overflow: hidden;
+        }
+
+        /* Container */
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        #header {
+            background-color: #333;
+            padding: 10px;
             text-align: center;
         }
-        .container {
-            max-width: 900px;
-            margin: auto;
-            padding: 20px;
+
+        #header h1 {
+            font-size: 24px;
         }
-        .stats, .upgrades, .goal, .prestige {
-            background: #2e2e3f;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+        /* Main Content */
+        #main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
         }
-        .title {
-            font-size: 36px;
-            font-weight: bold;
-            margin: 20px 0;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+
+        /* Left Panel */
+        #left-panel {
+            width: 250px;
+            background-color: #2e2e2e;
+            overflow-y: auto;
+            padding: 10px;
         }
-        button {
-            background: #5567a4;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            margin: 10px;
-            cursor: pointer;
-            border-radius: 5px;
+
+        /* Center Panel */
+        #center-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Right Panel */
+        #right-panel {
+            width: 250px;
+            background-color: #2e2e2e;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        /* Coin Display */
+        #coin-display {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #coin-display h2 {
+            font-size: 20px;
+        }
+
+        #coin-display p {
             font-size: 16px;
-            transition: 0.2s;
         }
-        button:hover {
-            background: #6d81d5;
+
+        /* Clickable Coin */
+        #clickable-coin {
+            width: 150px;
+            height: 150px;
+            background-image: url('https://i.imgur.com/O7MZrMl.png');
+            background-size: cover;
+            cursor: pointer;
+            position: relative;
         }
-        button:disabled {
-            background: #444;
-            cursor: not-allowed;
+
+        /* Floating Text */
+        .floating-text {
+            position: absolute;
+            animation: float-up 1s ease-out forwards;
+            pointer-events: none;
         }
+
+        @keyframes float-up {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+
+        /* Upgrade Lists */
+        .upgrade-section {
+            margin-bottom: 20px;
+        }
+
+        .upgrade-section h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .upgrade-list {
+            list-style: none;
+        }
+
+        .upgrade-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            background-color: #3e3e3e;
+            margin-bottom: 5px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .upgrade-item:hover {
+            border-color: #6e6e6e;
+        }
+
+        .upgrade-item.highlight {
+            border-color: #ffd700;
+        }
+
+        /* Upgrade Info */
+        .upgrade-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upgrade-name {
+            font-size: 14px;
+        }
+
+        .upgrade-cost {
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        /* Purchase Quantity */
+        #purchase-quantity {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .quantity-button {
+            background-color: #555;
+            color: #fff;
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .quantity-button.active {
+            background-color: #ffd700;
+            color: #000;
+        }
+
+        /* Footer */
+        #footer {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+        /* Modal */
+        #modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #modal-content {
+            background-color: #2e2e2e;
+            padding: 20px;
+            border: 2px solid #ffd700;
+            text-align: center;
+        }
+
+        #modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        #modal-buttons {
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            background-color: #555;
+            color: #fff;
+            padding: 10px 15px;
+            margin: 0 10px;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Progress Bar */
+        #prestige-bar {
+            width: 80%;
+            height: 20px;
+            background-color: #555;
+            margin: 10px auto;
+            position: relative;
+        }
+
+        #prestige-progress {
+            height: 100%;
+            background-color: #ffd700;
+            width: 0%;
+        }
+
+        #prestige-bar p {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: -25px;
+        }
+
+        /* Tooltip */
         .tooltip {
             position: relative;
-            display: inline-block;
         }
-        .tooltip span {
+
+        .tooltip .tooltiptext {
             visibility: hidden;
-            background: #333;
+            width: 150px;
+            background-color: #555;
             color: #fff;
             text-align: center;
             padding: 5px;
-            border-radius: 5px;
+            border-radius: 6px;
+
+            /* Positioning */
             position: absolute;
             z-index: 1;
-            bottom: 150%;
+            bottom: 125%; /* Position above the element */
             left: 50%;
-            margin-left: -100px;
+            margin-left: -75px;
+
+            /* Fade In */
             opacity: 0;
             transition: opacity 0.3s;
-            width: 250px;
         }
-        .tooltip:hover span {
+
+        .tooltip:hover .tooltiptext {
             visibility: visible;
             opacity: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #main-content {
+                flex-direction: column;
+            }
+
+            #left-panel,
+            #right-panel {
+                width: 100%;
+                height: 200px;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+
+            #left-panel,
+            #right-panel {
+                display: flex;
+                flex-direction: row;
+            }
+
+            .upgrade-item {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="title">Racism Clicker</div>
-        <div class="stats">
-            <h1>Coins: <span id="coins">0</span></h1>
-            <h3>Income per Click: <span id="income-per-click">1</span></h3>
-            <h3>Income per Second: <span id="income-per-second">0</span></h3>
+    <div id="game-container">
+        <!-- Header -->
+        <div id="header">
+            <h1>Click Quest</h1>
         </div>
-        <button onclick="clickHandler()">Pick Cotton</button>
-        <div class="upgrades">
-            <h2>Upgrades</h2>
-            <div id="upgrades-list"></div>
+        <!-- Main Content -->
+        <div id="main-content">
+            <!-- Left Panel -->
+            <div id="left-panel">
+                <!-- Purchase Quantity -->
+                <div id="purchase-quantity">
+                    <button class="quantity-button active" data-quantity="1">x1</button>
+                    <button class="quantity-button" data-quantity="10">x10</button>
+                    <button class="quantity-button" data-quantity="100">x100</button>
+                    <button class="quantity-button" data-quantity="max">Max</button>
+                </div>
+                <!-- Click Upgrades -->
+                <div class="upgrade-section">
+                    <h3>Click Upgrades</h3>
+                    <ul id="click-upgrades" class="upgrade-list">
+                        <!-- Upgrade items will be populated here -->
+                    </ul>
+                </div>
+            </div>
+            <!-- Center Panel -->
+            <div id="center-panel">
+                <!-- Coin Display -->
+                <div id="coin-display">
+                    <h2>Coins: <span id="coin-count">0</span></h2>
+                    <p>Income Per Click (IPC): <span id="ipc-display">1</span></p>
+                    <p>Coins Per Second (CPS): <span id="cps-display">0</span></p>
+                </div>
+                <!-- Clickable Coin -->
+                <div id="clickable-coin"></div>
+                <!-- Prestige Bar -->
+                <div id="prestige-bar" class="tooltip">
+                    <p>Prestige Progress</p>
+                    <div id="prestige-progress"></div>
+                    <span class="tooltiptext" id="prestige-tooltip"></span>
+                </div>
+            </div>
+            <!-- Right Panel -->
+            <div id="right-panel">
+                <!-- Passive Upgrades -->
+                <div class="upgrade-section">
+                    <h3>Passive Upgrades</h3>
+                    <ul id="passive-upgrades" class="upgrade-list">
+                        <!-- Upgrade items will be populated here -->
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div class="prestige">
-            <h2>Prestige</h2>
-            <p>Reset progress to earn a multiplier to all income.</p>
-            <button onclick="prestige()" id="prestige-btn" disabled>Prestige (Requires 1M Coins)</button>
+        <!-- Footer -->
+        <div id="footer">
+            <button id="save-button">Save Game</button>
+            <button id="export-button">Export Save</button>
+            <button id="import-button">Import Save</button>
+            <button id="reset-button">Reset Game</button>
         </div>
-        <div class="goal">
-            <h2>End Goal</h2>
-            <p>Build the <strong>Golden Plantation</strong> to complete the game.</p>
-            <p>Progress: <span id="goal-progress">0%</span></p>
-            <button onclick="completeGoal()" id="goal-btn" disabled>Build Golden Plantation (1 trillion coins required)</button>
-        </div>
-        <div>
-            <button onclick="exportGame()">Export Save</button>
-            <input id="import-input" placeholder="Paste save string here">
-            <button onclick="importGame()">Import Save</button>
-            <button onclick="resetGame()">Reset Game</button>
+    </div>
+    <!-- Modal -->
+    <div id="modal">
+        <div id="modal-content">
+            <h2 id="modal-title">Prestige Available!</h2>
+            <p id="modal-message">You can prestige now to gain multipliers.</p>
+            <div id="modal-buttons">
+                <button class="modal-button" id="prestige-button">Prestige</button>
+                <button class="modal-button" id="cancel-button">Cancel</button>
+            </div>
         </div>
     </div>
     <script>
+        // Game Variables
         let coins = 0;
-        let incomePerClick = 1;
-        let incomePerSecond = 0;
-        let totalCoinsEarned = 0;
+        let ipc = 1;
+        let cps = 0;
+        let totalClicks = 0;
+        let prestigePoints = 0;
         let prestigeMultiplier = 1;
-        let prestigeCount = 0;
-        let goalAchieved = false;
+        let prestigeThreshold = 1000000;
+        let purchaseQuantity = 1;
+        let offlineTime = Date.now();
 
-        const goalRequirement = 1e12;
-
-        const upgrades = [
-            { name: "Faster Hands", baseCost: 50, purchases: 0, baseIncome: 1, incrementalBonus: 0.5, type: "click", tooltip: "Increases income per click by 1, with an incremental bonus of 0.5." },
-            { name: "Simple Tools", baseCost: 1000, purchases: 0, baseIncome: 10, incrementalBonus: 5, type: "click", tooltip: "Increases income per click by 10, with an incremental bonus of 5." },
-            { name: "Cotton Gin", baseCost: 200000, purchases: 0, baseIncome: 250, incrementalBonus: 100, type: "click", tooltip: "Increases income per click by 250, with an incremental bonus of 100." },
-            { name: "Black Slave", baseCost: 200, purchases: 0, baseIncome: 5, incrementalBonus: 1, type: "passive", tooltip: "Adds 5 coins per second, with an incremental bonus of 1." },
-            { name: "Indian Tech Support", baseCost: 5000, purchases: 0, baseIncome: 50, incrementalBonus: 10, type: "passive", tooltip: "Adds 50 coins per second, with an incremental bonus of 10." },
-            { name: "Muslim Terrorist", baseCost: 50000, purchases: 0, baseIncome: 200, incrementalBonus: 100, type: "passive", tooltip: "Adds 200 coins per second, with an incremental bonus of 100." },
-            { name: "Jewish Banker", baseCost: 1e6, purchases: 0, baseIncome: 500, incrementalBonus: 200, type: "passive", tooltip: "Adds 500 coins per second, with an incremental bonus of 200." },
-            { name: "Klan Member", baseCost: 1e7, purchases: 0, baseIncome: 2500, incrementalBonus: 500, type: "passive", tooltip: "Adds 2500 coins per second, with an incremental bonus of 500." },
-            { name: "Klan Leader", baseCost: 1e8, purchases: 0, baseIncome: 10000, incrementalBonus: 1000, type: "passive", tooltip: "Adds 10,000 coins per second, with an incremental bonus of 1000." },
-            { name: "Hitler", baseCost: 1e10, purchases: 0, baseIncome: 1e6, incrementalBonus: 5e5, type: "passive", tooltip: "Adds 1,000,000 coins per second, with an incremental bonus of 500,000." },
+        // Upgrade Data
+        const clickUpgrades = [
+            { name: "Faster Fingers", baseCost: 50, quantity: 0, multiplier: 0.2 },
+            { name: "Titanium Clicker", baseCost: 500, quantity: 0, multiplier: 1 },
+            { name: "Quantum Tap", baseCost: 5000, quantity: 0, multiplier: 5 },
+            { name: "Dimensional Press", baseCost: 50000, quantity: 0, multiplier: 20 },
         ];
 
-        function getUpgradeCost(upgrade) {
-            return Math.floor(upgrade.baseCost * Math.pow(1.15, upgrade.purchases));
-        }
+        const passiveUpgrades = [
+            { name: "Coin Generator", baseCost: 100, quantity: 0, multiplier: 0.1 },
+            { name: "Automated Mint", baseCost: 1000, quantity: 0, multiplier: 0.5 },
+            { name: "Time Dilation Device", baseCost: 10000, quantity: 0, multiplier: 2 },
+            { name: "Eternal Vault", baseCost: 100000, quantity: 0, multiplier: 10 },
+        ];
 
-        function getUpgradeIncome(upgrade) {
-            return upgrade.baseIncome + upgrade.purchases * upgrade.incrementalBonus;
-        }
+        // DOM Elements
+        const coinCountElem = document.getElementById('coin-count');
+        const ipcDisplayElem = document.getElementById('ipc-display');
+        const cpsDisplayElem = document.getElementById('cps-display');
+        const clickableCoinElem = document.getElementById('clickable-coin');
+        const clickUpgradesListElem = document.getElementById('click-upgrades');
+        const passiveUpgradesListElem = document.getElementById('passive-upgrades');
+        const prestigeBarElem = document.getElementById('prestige-progress');
+        const prestigeTooltipElem = document.getElementById('prestige-tooltip');
+        const modalElem = document.getElementById('modal');
+        const modalTitleElem = document.getElementById('modal-title');
+        const modalMessageElem = document.getElementById('modal-message');
+        const prestigeButtonElem = document.getElementById('prestige-button');
+        const cancelButtonElem = document.getElementById('cancel-button');
+        const purchaseQuantityButtons = document.querySelectorAll('.quantity-button');
 
-        function updateUI() {
-            document.getElementById("coins").textContent = coins.toLocaleString();
-            document.getElementById("income-per-click").textContent = incomePerClick.toLocaleString();
-            document.getElementById("income-per-second").textContent = incomePerSecond.toLocaleString();
-
-            const progress = Math.min((totalCoinsEarned / goalRequirement) * 100, 100);
-            document.getElementById("goal-progress").textContent = `${progress.toFixed(2)}%`;
-            document.getElementById("goal-btn").disabled = totalCoinsEarned < goalRequirement || goalAchieved;
-
-            const prestigeButton = document.getElementById("prestige-btn");
-            prestigeButton.disabled = coins < 1000000;
-
-            const upgradesContainer = document.getElementById("upgrades-list");
-            upgradesContainer.innerHTML = upgrades
-                .map(
-                    (upgrade, index) => `
-                        <div class="tooltip">
-                            <button ${
-                                coins >= getUpgradeCost(upgrade) ? "" : "disabled"
-                            } onclick="buyUpgrade(${index})">
-                                ${upgrade.name} (${getUpgradeCost(upgrade).toLocaleString()} coins)
-                            </button>
-                            <span>${upgrade.tooltip} | Income: ${getUpgradeIncome(upgrade).toLocaleString()}</span>
-                        </div>`
-                )
-                .join("");
-
-            saveGame();
-        }
-
-        function clickHandler() {
-            const earnings = incomePerClick * prestigeMultiplier;
-            coins += earnings;
-            totalCoinsEarned += earnings;
-            updateUI();
-        }
-
-        function buyUpgrade(index) {
-            const upgrade = upgrades[index];
-            const cost = getUpgradeCost(upgrade);
-
-            if (coins >= cost) {
-                coins -= cost;
-                upgrade.purchases++;
-
-                if (upgrade.type === "click") {
-                    incomePerClick += upgrade.baseIncome + (upgrade.purchases - 1) * upgrade.incrementalBonus;
-                } else if (upgrade.type === "passive") {
-                    incomePerSecond += upgrade.baseIncome + (upgrade.purchases - 1) * upgrade.incrementalBonus;
-                }
-
-                updateUI();
-            }
-        }
-
-        function prestige() {
-            if (coins >= 1000000) {
-                coins = 0;
-                incomePerClick = 1;
-                incomePerSecond = 0;
-                upgrades.forEach((u) => {
-                    u.purchases = 0;
-                });
-                prestigeMultiplier *= 1.5;
-                prestigeCount++;
-                updateUI();
-            }
-        }
-
-        function completeGoal() {
-            if (totalCoinsEarned >= goalRequirement && !goalAchieved) {
-                goalAchieved = true;
-                alert("Congratulations! You've built the Golden Plantation and completed the game!");
-            }
-        }
-
+        // Save and Load Functions
         function saveGame() {
-            const saveData = btoa(
-                JSON.stringify({
-                    coins,
-                    incomePerClick,
-                    incomePerSecond,
-                    totalCoinsEarned,
-                    prestigeMultiplier,
-                    prestigeCount,
-                    goalAchieved,
-                    upgrades: upgrades.map((u) => ({ purchases: u.purchases })),
-                })
-            );
-            localStorage.setItem("clickerGameSave", saveData);
+            const saveData = {
+                coins,
+                ipc,
+                cps,
+                totalClicks,
+                prestigePoints,
+                prestigeMultiplier,
+                prestigeThreshold,
+                clickUpgrades,
+                passiveUpgrades,
+                offlineTime: Date.now(),
+            };
+            localStorage.setItem('clickQuestSave', JSON.stringify(saveData));
+            alert('Game Saved!');
+        }
+
+        function loadGame() {
+            const savedData = JSON.parse(localStorage.getItem('clickQuestSave'));
+            if (savedData) {
+                coins = savedData.coins;
+                ipc = savedData.ipc;
+                cps = savedData.cps;
+                totalClicks = savedData.totalClicks;
+                prestigePoints = savedData.prestigePoints;
+                prestigeMultiplier = savedData.prestigeMultiplier;
+                prestigeThreshold = savedData.prestigeThreshold;
+                offlineTime = savedData.offlineTime;
+
+                // Load Upgrades
+                savedData.clickUpgrades.forEach((upgrade, index) => {
+                    clickUpgrades[index].quantity = upgrade.quantity;
+                });
+                savedData.passiveUpgrades.forEach((upgrade, index) => {
+                    passiveUpgrades[index].quantity = upgrade.quantity;
+                });
+
+                // Calculate offline earnings
+                const timeDifference = Date.now() - offlineTime;
+                const offlineEarnings = cps * (timeDifference / 1000);
+                coins += offlineEarnings;
+                alert(`Welcome back! You earned ${formatNumber(offlineEarnings)} coins while offline.`);
+            }
         }
 
         function resetGame() {
-            if (confirm("Are you sure you want to reset your progress? This cannot be undone.")) {
-                localStorage.removeItem("clickerGameSave");
-                coins = 0;
-                incomePerClick = 1;
-                incomePerSecond = 0;
-                totalCoinsEarned = 0;
-                prestigeMultiplier = 1;
-                prestigeCount = 0;
-                goalAchieved = false;
-                upgrades.forEach((u) => {
-                    u.purchases = 0;
-                });
-                updateUI();
-                alert("Progress has been reset.");
+            if (confirm('Are you sure you want to reset the game? All progress will be lost.')) {
+                localStorage.removeItem('clickQuestSave');
+                location.reload();
             }
         }
 
-        setInterval(() => {
-            const earnings = incomePerSecond * prestigeMultiplier;
-            coins += earnings;
-            totalCoinsEarned += earnings;
-            updateUI();
-        }, 1000);
+        // Formatting Function
+        function formatNumber(num) {
+            return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
+        }
 
-        if (localStorage.getItem("clickerGameSave")) {
-            const savedData = JSON.parse(atob(localStorage.getItem("clickerGameSave")));
-            coins = savedData.coins;
-            incomePerClick = savedData.incomePerClick;
-            incomePerSecond = savedData.incomePerSecond;
-            totalCoinsEarned = savedData.totalCoinsEarned;
-            prestigeMultiplier = savedData.prestigeMultiplier;
-            prestigeCount = savedData.prestigeCount;
-            goalAchieved = savedData.goalAchieved;
-            upgrades.forEach((u, index) => {
-                u.purchases = savedData.upgrades[index].purchases;
+        // Update Display
+        function updateDisplay() {
+            coinCountElem.textContent = formatNumber(coins);
+            ipcDisplayElem.textContent = formatNumber(ipc);
+            cpsDisplayElem.textContent = formatNumber(cps);
+            updatePrestigeBar();
+            highlightBestUpgrades();
+        }
+
+        // Coin Click Function
+        clickableCoinElem.addEventListener('click', () => {
+            const coinsGained = ipc;
+            coins += coinsGained;
+            totalClicks += 1;
+
+            // Floating Text
+            const floatingText = document.createElement('span');
+            floatingText.classList.add('floating-text');
+            floatingText.style.left = `${Math.random() * 100}%`;
+            floatingText.style.top = '50%';
+            floatingText.textContent = `+${formatNumber(coinsGained)}`;
+            clickableCoinElem.appendChild(floatingText);
+
+            setTimeout(() => {
+                floatingText.remove();
+            }, 1000);
+
+            updateDisplay();
+        });
+
+        // Purchase Quantity Buttons
+        purchaseQuantityButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                purchaseQuantityButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                purchaseQuantity = button.getAttribute('data-quantity');
+            });
+        });
+
+        // Upgrade Purchase Functions
+        function buyClickUpgrade(index) {
+            const upgrade = clickUpgrades[index];
+            let quantityToBuy = getPurchaseQuantity(upgrade);
+            const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantityToBuy);
+
+            if (coins >= cost) {
+                coins -= cost;
+                upgrade.quantity += quantityToBuy;
+                calculateIPC();
+                updateDisplay();
+                renderUpgrades();
+            } else {
+                alert('Not enough coins!');
+            }
+        }
+
+        function buyPassiveUpgrade(index) {
+            const upgrade = passiveUpgrades[index];
+            let quantityToBuy = getPurchaseQuantity(upgrade);
+            const cost = calculateTotalCost(upgrade.baseCost, upgrade.quantity, quantityToBuy);
+
+            if (coins >= cost) {
+                coins -= cost;
+                upgrade.quantity += quantityToBuy;
+                calculateCPS();
+                updateDisplay();
+                renderUpgrades();
+            } else {
+                alert('Not enough coins!');
+            }
+        }
+
+        function getPurchaseQuantity(upgrade) {
+            if (purchaseQuantity === 'max') {
+                return calculateMaxAffordable(upgrade);
+            } else {
+                return parseInt(purchaseQuantity);
+            }
+        }
+
+        function calculateTotalCost(baseCost, currentQuantity, quantityToBuy) {
+            let totalCost = 0;
+            for (let i = 0; i < quantityToBuy; i++) {
+                totalCost += baseCost * Math.pow(1.15, currentQuantity + i);
+            }
+            return totalCost;
+        }
+
+        function calculateMaxAffordable(upgrade) {
+            let quantity = 0;
+            let totalCost = 0;
+            let currentQuantity = upgrade.quantity;
+            while (coins >= totalCost + upgrade.baseCost * Math.pow(1.15, currentQuantity)) {
+                totalCost += upgrade.baseCost * Math.pow(1.15, currentQuantity);
+                currentQuantity += 1;
+                quantity += 1;
+            }
+            return quantity;
+        }
+
+        // Calculate IPC and CPS
+        function calculateIPC() {
+            ipc = (1 + clickUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity * upgrade.multiplier, 0)) * prestigeMultiplier;
+        }
+
+        function calculateCPS() {
+            cps = passiveUpgrades.reduce((sum, upgrade) => sum + upgrade.quantity * upgrade.multiplier, 0) * prestigeMultiplier;
+        }
+
+        // Render Upgrades
+        function renderUpgrades() {
+            // Click Upgrades
+            clickUpgradesListElem.innerHTML = '';
+            clickUpgrades.forEach((upgrade, index) => {
+                const upgradeItem = document.createElement('li');
+                upgradeItem.classList.add('upgrade-item');
+                upgradeItem.addEventListener('click', () => buyClickUpgrade(index));
+
+                const upgradeInfo = document.createElement('div');
+                upgradeInfo.classList.add('upgrade-info');
+
+                const upgradeName = document.createElement('span');
+                upgradeName.classList.add('upgrade-name');
+                upgradeName.textContent = `${upgrade.name} (x${upgrade.quantity})`;
+
+                const upgradeCost = document.createElement('span');
+                upgradeCost.classList.add('upgrade-cost');
+                upgradeCost.textContent = `Cost: ${formatNumber(calculateTotalCost(upgrade.baseCost, upgrade.quantity, getPurchaseQuantity(upgrade)))}`;
+
+                upgradeInfo.appendChild(upgradeName);
+                upgradeInfo.appendChild(upgradeCost);
+                upgradeItem.appendChild(upgradeInfo);
+                clickUpgradesListElem.appendChild(upgradeItem);
+            });
+
+            // Passive Upgrades
+            passiveUpgradesListElem.innerHTML = '';
+            passiveUpgrades.forEach((upgrade, index) => {
+                const upgradeItem = document.createElement('li');
+                upgradeItem.classList.add('upgrade-item');
+                upgradeItem.addEventListener('click', () => buyPassiveUpgrade(index));
+
+                const upgradeInfo = document.createElement('div');
+                upgradeInfo.classList.add('upgrade-info');
+
+                const upgradeName = document.createElement('span');
+                upgradeName.classList.add('upgrade-name');
+                upgradeName.textContent = `${upgrade.name} (x${upgrade.quantity})`;
+
+                const upgradeCost = document.createElement('span');
+                upgradeCost.classList.add('upgrade-cost');
+                upgradeCost.textContent = `Cost: ${formatNumber(calculateTotalCost(upgrade.baseCost, upgrade.quantity, getPurchaseQuantity(upgrade)))}`;
+
+                upgradeInfo.appendChild(upgradeName);
+                upgradeInfo.appendChild(upgradeCost);
+                upgradeItem.appendChild(upgradeInfo);
+                passiveUpgradesListElem.appendChild(upgradeItem);
             });
         }
 
-        updateUI();
+        // Highlight Best Upgrades
+        function highlightBestUpgrades() {
+            // Find Best Click Upgrade
+            let bestClickUpgradeIndex = -1;
+            let bestClickValue = 0;
+            clickUpgrades.forEach((upgrade, index) => {
+                const value = upgrade.multiplier / calculateTotalCost(upgrade.baseCost, upgrade.quantity, 1);
+                if (value > bestClickValue) {
+                    bestClickValue = value;
+                    bestClickUpgradeIndex = index;
+                }
+            });
+
+            // Find Best Passive Upgrade
+            let bestPassiveUpgradeIndex = -1;
+            let bestPassiveValue = 0;
+            passiveUpgrades.forEach((upgrade, index) => {
+                const value = upgrade.multiplier / calculateTotalCost(upgrade.baseCost, upgrade.quantity, 1);
+                if (value > bestPassiveValue) {
+                    bestPassiveValue = value;
+                    bestPassiveUpgradeIndex = index;
+                }
+            });
+
+            // Highlight Upgrades
+            const clickUpgradeItems = clickUpgradesListElem.querySelectorAll('.upgrade-item');
+            clickUpgradeItems.forEach((item, index) => {
+                item.classList.toggle('highlight', index === bestClickUpgradeIndex);
+            });
+
+            const passiveUpgradeItems = passiveUpgradesListElem.querySelectorAll('.upgrade-item');
+            passiveUpgradeItems.forEach((item, index) => {
+                item.classList.toggle('highlight', index === bestPassiveUpgradeIndex);
+            });
+        }
+
+        // Prestige Functions
+        function updatePrestigeBar() {
+            const progress = Math.min((coins / prestigeThreshold) * 100, 100);
+            prestigeBarElem.style.width = `${progress}%`;
+            prestigeTooltipElem.textContent = `Coins: ${formatNumber(coins)} / ${formatNumber(prestigeThreshold)}\nPrestige Points: ${prestigePoints}\nNext Prestige Multiplier: x${Math.pow(2, prestigePoints + 1)}`;
+            if (coins >= prestigeThreshold) {
+                showPrestigeModal();
+            }
+        }
+
+        function showPrestigeModal() {
+            modalElem.style.display = 'flex';
+            modalTitleElem.textContent = 'Prestige Available!';
+            modalMessageElem.textContent = `You can prestige now to gain a x${Math.pow(2, prestigePoints + 1)} multiplier.`;
+        }
+
+        prestigeButtonElem.addEventListener('click', () => {
+            prestige();
+            modalElem.style.display = 'none';
+        });
+
+        cancelButtonElem.addEventListener('click', () => {
+            modalElem.style.display = 'none';
+        });
+
+        function prestige() {
+            prestigePoints += 1;
+            prestigeMultiplier = Math.pow(2, prestigePoints);
+            coins = 0;
+            ipc = 1;
+            cps = 0;
+            totalClicks = 0;
+            prestigeThreshold *= 10;
+
+            // Reset Upgrades
+            clickUpgrades.forEach(upgrade => upgrade.quantity = 0);
+            passiveUpgrades.forEach(upgrade => upgrade.quantity = 0);
+
+            calculateIPC();
+            calculateCPS();
+            updateDisplay();
+            renderUpgrades();
+            alert(`You have prestiged! Your new prestige multiplier is x${prestigeMultiplier}.`);
+        }
+
+        // Game Loop
+        setInterval(() => {
+            coins += cps / 10;
+            updateDisplay();
+        }, 100);
+
+        // Auto Save
+        setInterval(() => {
+            saveGame();
+        }, 60000);
+
+        // Event Listeners
+        document.getElementById('save-button').addEventListener('click', saveGame);
+        document.getElementById('export-button').addEventListener('click', () => {
+            const saveString = btoa(JSON.stringify(localStorage.getItem('clickQuestSave')));
+            prompt('Copy your save code:', saveString);
+        });
+        document.getElementById('import-button').addEventListener('click', () => {
+            const saveString = prompt('Paste your save code:');
+            if (saveString) {
+                const decoded = atob(saveString);
+                localStorage.setItem('clickQuestSave', JSON.parse(decoded));
+                loadGame();
+                updateDisplay();
+                renderUpgrades();
+            }
+        });
+        document.getElementById('reset-button').addEventListener('click', resetGame);
+
+        // Initial Setup
+        function init() {
+            loadGame();
+            calculateIPC();
+            calculateCPS();
+            updateDisplay();
+            renderUpgrades();
+        }
+
+        init();
     </script>
 </body>
 </html>
