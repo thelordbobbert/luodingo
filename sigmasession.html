@@ -616,8 +616,10 @@
         }
 
         function loadGame() {
-            const savedData = JSON.parse(localStorage.getItem('clickQuestSave'));
-            if (savedData) {
+            const savedDataString = localStorage.getItem('clickQuestSave');
+            if (savedDataString) {
+                const savedData = JSON.parse(savedDataString);
+
                 coins = savedData.coins;
                 ipc = savedData.ipc;
                 cps = savedData.cps;
@@ -1066,20 +1068,41 @@
         }, 60000);
 
         document.getElementById('save-button').addEventListener('click', saveGame);
+
         document.getElementById('export-button').addEventListener('click', () => {
-            const saveString = btoa(JSON.stringify(localStorage.getItem('clickQuestSave')));
-            prompt('Copy your save code:', saveString);
+            const saveDataString = localStorage.getItem('clickQuestSave');
+            if (saveDataString) {
+                const encodedData = btoa(saveDataString);
+                navigator.clipboard.writeText(encodedData).then(() => {
+                    showNotification('Save data copied to clipboard!');
+                }).catch(err => {
+                    showNotification('Failed to copy save data.');
+                });
+            } else {
+                showNotification('No save data found.');
+            }
         });
+
         document.getElementById('import-button').addEventListener('click', () => {
             const saveString = prompt('Paste your save code:');
             if (saveString) {
-                const decoded = atob(saveString);
-                localStorage.setItem('clickQuestSave', JSON.parse(decoded));
-                loadGame();
-                updateDisplay();
-                renderUpgrades();
+                try {
+                    const decoded = atob(saveString);
+                    localStorage.setItem('clickQuestSave', decoded);
+                    loadGame();
+                    calculateIPC();
+                    calculateCPS();
+                    calculateHoldClickSpeed();
+                    updateDisplay();
+                    renderUpgrades();
+                    checkUnlockables();
+                    showNotification('Game loaded successfully!');
+                } catch (e) {
+                    showNotification('Invalid save code.');
+                }
             }
         });
+
         document.getElementById('reset-button').addEventListener('click', resetGame);
 
         const centerPanel = document.getElementById('center-panel');
