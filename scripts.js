@@ -89,11 +89,3 @@ function enterSigmaSession() {
 function goBackHome() {
   window.location.href = '/';
 }
-
-function appStart() {
-  window.location.href = "app";
-}
-
-function startLesson() {
-  window.location.href = "comingsoon";
-}
