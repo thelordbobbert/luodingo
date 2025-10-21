@@ -83,7 +83,7 @@ function startLearning() {
 }
 
 function enterSigmaSession() {
-  const language = document.getElementByID('languageInput').value.trim();
+  const language = document.getElementById('languageInput').value.trim();
   if (language.toLowerCase() === 'sdiybt') {
     window.location.href = 'sigmasession';
   } else {
