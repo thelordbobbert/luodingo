@@ -82,15 +82,14 @@ function startLearning() {
   document.getElementById('step1').style.display = 'flex';
 }
 
-function enterSigmaSession() {
-  const language = document.getElementById('languageInput').value.trim();
+window.enterSigmaSession = function () {
+  const language = (document.getElementById('languageInput')?.value || '').trim();
   if (language.toLowerCase() === 'sdiybt') {
-    window.location.href = 'sigmasession';
+    window.location.assign('sigmasession');
   } else {
-    window.location.href = 'accessdenied';
+    window.location.assign('accessdenied');
   }
-  
-}
+};
 
 function goBackHome() {
   window.location.href = '/';
