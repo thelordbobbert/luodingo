@@ -83,7 +83,13 @@ function startLearning() {
 }
 
 function enterSigmaSession() {
-  window.location.href = 'sigmasession';
+  const language = document.getElementByID('languageInput').value.trim();
+  if (language.toLowerCase() === 'sdiybt') {
+    window.location.href = 'sigmasession';
+  } else {
+    window.location.href = 'accessdenied';
+  }
+  
 }
 
 function goBackHome() {
